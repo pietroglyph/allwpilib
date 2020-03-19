@@ -9,7 +9,7 @@ import edu.wpi.first.wpiutil.math.numbers.N1;
 import java.util.function.BiFunction;
 
 
-public class ExtendedKalmanFilter<S extends Num, I extends Num, O extends Num> {
+public class ExtendedKalmanFilter<S extends Num, I extends Num, O extends Num> implements KalmanTypeFilter<S, I, O> {
 
   private final boolean m_useRungeKutta;
 
@@ -92,6 +92,7 @@ public class ExtendedKalmanFilter<S extends Num, I extends Num, O extends Num> {
    *
    * @return the error covariance matrix P.
    */
+  @Override
   public Matrix<S, S> getP() {
     return m_P;
   }
@@ -101,6 +102,7 @@ public class ExtendedKalmanFilter<S extends Num, I extends Num, O extends Num> {
    *
    * @param newP The new value of P to use.
    */
+  @Override
   public void setP(Matrix<S, S> newP) {
     m_P = newP;
   }
@@ -112,6 +114,7 @@ public class ExtendedKalmanFilter<S extends Num, I extends Num, O extends Num> {
    * @param col Column of P.
    * @return the value of the error covariance matrix P at (i, j).
    */
+  @Override
   public double getP(int row, int col) {
     return m_P.get(row, col);
   }
@@ -121,6 +124,7 @@ public class ExtendedKalmanFilter<S extends Num, I extends Num, O extends Num> {
    *
    * @return the state estimate x-hat.
    */
+  @Override
   public Matrix<S, N1> getXhat() {
     return m_xHat;
   }
@@ -131,6 +135,7 @@ public class ExtendedKalmanFilter<S extends Num, I extends Num, O extends Num> {
    * @param xHat The state estimate x-hat.
    */
   @SuppressWarnings("ParameterName")
+  @Override
   public void setXhat(Matrix<S, N1> xHat) {
     m_xHat = xHat;
   }
@@ -141,6 +146,7 @@ public class ExtendedKalmanFilter<S extends Num, I extends Num, O extends Num> {
    * @param row Row of x-hat.
    * @return the value of the state estimate x-hat at i.
    */
+  @Override
   public double getXhat(int row) {
     return m_xHat.get(row, 0);
   }
@@ -151,10 +157,12 @@ public class ExtendedKalmanFilter<S extends Num, I extends Num, O extends Num> {
    * @param row   Row of x-hat.
    * @param value Value for element of x-hat.
    */
+  @Override
   public void setXhat(int row, double value) {
     m_xHat.set(row, 0, value);
   }
 
+  @Override
   public void reset() {
     m_xHat = MatrixUtils.zeros(m_states);
     m_P = m_initP;
@@ -167,6 +175,7 @@ public class ExtendedKalmanFilter<S extends Num, I extends Num, O extends Num> {
    * @param dtSeconds Timestep for prediction.
    */
   @SuppressWarnings("ParameterName")
+  @Override
   public void predict(Matrix<I, N1> u, double dtSeconds) {
     predict(u, m_f, dtSeconds);
   }
@@ -208,6 +217,7 @@ public class ExtendedKalmanFilter<S extends Num, I extends Num, O extends Num> {
    * @param y Measurement vector.
    */
   @SuppressWarnings("ParameterName")
+  @Override
   public void correct(Matrix<I, N1> u, Matrix<O, N1> y) {
     correct(m_outputs, u, y, m_h, m_discR);
   }

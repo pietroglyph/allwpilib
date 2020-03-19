@@ -26,7 +26,7 @@ import org.ejml.simple.SimpleMatrix;
  * https://file.tavsys.net/control/controls-engineering-in-frc.pdf.
  */
 public class KalmanFilter<S extends Num, I extends Num,
-        O extends Num> {
+        O extends Num> implements KalmanTypeFilter<S, I, O> {
 
   /**
    * The states of the system.
@@ -118,8 +118,19 @@ public class KalmanFilter<S extends Num, I extends Num,
    * @param col Column of P.
    * @return the element (i, j) of the error covariance matrix P.
    */
+  @Override
   public double getP(int row, int col) {
     return m_P.get(row, col);
+  }
+
+  /**
+   * Sets the entire error covariance matrix P.
+   *
+   * @param newP The new value of P to use.
+   */
+  @Override
+  public void setP(Matrix<S, S> newP) {
+    m_P = newP;
   }
 
   /**
@@ -127,6 +138,7 @@ public class KalmanFilter<S extends Num, I extends Num,
    *
    * @param xhat The state estimate x-hat.
    */
+  @Override
   public void setXhat(Matrix<S, N1> xhat) {
     m_plant.setX(xhat);
   }
@@ -146,6 +158,7 @@ public class KalmanFilter<S extends Num, I extends Num,
    *
    * @return The state estimate x-hat.
    */
+  @Override
   public Matrix<S, N1> getXhat() {
     return m_plant.getX();
   }
@@ -156,6 +169,7 @@ public class KalmanFilter<S extends Num, I extends Num,
    * @param row Row of x-hat.
    * @return the state estimate x-hat at i.
    */
+  @Override
   public double getXhat(int row) {
     return m_plant.getX(row);
   }
@@ -163,6 +177,7 @@ public class KalmanFilter<S extends Num, I extends Num,
   /**
    * Resets the observer.
    */
+  @Override
   public void reset() {
     m_plant.reset();
   }
@@ -174,6 +189,7 @@ public class KalmanFilter<S extends Num, I extends Num,
    * @param dtSeconds Timestep for prediction.
    */
   @SuppressWarnings("ParameterName")
+  @Override
   public void predict(Matrix<I, N1> u, double dtSeconds) {
     m_plant.setX(m_plant.calculateX(m_plant.getX(), u, dtSeconds));
 
@@ -192,6 +208,7 @@ public class KalmanFilter<S extends Num, I extends Num,
    * @param y Measurement vector.
    */
   @SuppressWarnings("ParameterName")
+  @Override
   public void correct(Matrix<I, N1> u, Matrix<O, N1> y) {
     correct(u, y, m_plant.getC(), m_discR);
   }
