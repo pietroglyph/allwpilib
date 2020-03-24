@@ -1,5 +1,12 @@
 package edu.wpi.first.wpilibj.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+import org.ejml.simple.SimpleMatrix;
+import org.junit.jupiter.api.Test;
+
 import edu.wpi.first.wpilibj.estimator.KalmanFilter;
 import edu.wpi.first.wpilibj.system.LinearSystem;
 import edu.wpi.first.wpilibj.system.LinearSystemLoop;
@@ -10,12 +17,6 @@ import edu.wpi.first.wpiutil.math.Matrix;
 import edu.wpi.first.wpiutil.math.Nat;
 import edu.wpi.first.wpiutil.math.numbers.N1;
 import edu.wpi.first.wpiutil.math.numbers.N2;
-import org.ejml.simple.SimpleMatrix;
-import org.junit.jupiter.api.Test;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -68,6 +69,7 @@ public class LinearSystemLoopTest {
   }
 
   @Test
+  @SuppressWarnings("LocalVariableName")
   public void testStateSpaceEnabled() {
 
     m_loop.reset();
@@ -149,19 +151,19 @@ public class LinearSystemLoopTest {
       error.add(loop.getError(0) / 2d / Math.PI * 60);
     }
 
-//        XYChart bigChart = new XYChartBuilder().build();
-//        bigChart.addSeries("Xhat, RPM", timeData, xHat);
-//        bigChart.addSeries("Reference, RPM", timeData, reference);
-//        bigChart.addSeries("Error, RPM", timeData, error);
-//
-//        XYChart smolChart = new XYChartBuilder().build();
-//        smolChart.addSeries("Volts, V", timeData, volt);
-//
-//        try {
-//            new SwingWrapper<>(bigChart).displayChart();
-//            new SwingWrapper<>(smolChart).displayChart();
-//            Thread.sleep(10000000);
-//        } catch (InterruptedException e) { e.printStackTrace(); }
+    //        XYChart bigChart = new XYChartBuilder().build();
+    //        bigChart.addSeries("Xhat, RPM", timeData, xHat);
+    //        bigChart.addSeries("Reference, RPM", timeData, reference);
+    //        bigChart.addSeries("Error, RPM", timeData, error);
+    //
+    //        XYChart smolChart = new XYChartBuilder().build();
+    //        smolChart.addSeries("Volts, V", timeData, volt);
+    //
+    //        try {
+    //            new SwingWrapper<>(bigChart).displayChart();
+    //            new SwingWrapper<>(smolChart).displayChart();
+    //            Thread.sleep(10000000);
+    //        } catch (InterruptedException e) { e.printStackTrace(); }
 
     assertEquals(loop.getError(0), 0.0, 0.1);
   }

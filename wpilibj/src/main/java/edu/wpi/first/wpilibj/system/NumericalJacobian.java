@@ -1,13 +1,13 @@
 package edu.wpi.first.wpilibj.system;
 
+import java.util.function.BiFunction;
+import java.util.function.Function;
+
 import edu.wpi.first.wpiutil.math.Matrix;
 import edu.wpi.first.wpiutil.math.MatrixUtils;
 import edu.wpi.first.wpiutil.math.Nat;
 import edu.wpi.first.wpiutil.math.Num;
 import edu.wpi.first.wpiutil.math.numbers.N1;
-
-import java.util.function.BiFunction;
-import java.util.function.Function;
 
 public final class NumericalJacobian {
 
