@@ -251,7 +251,7 @@ public final class StateSpaceUtils {
     // and we want (states + inputs) x (states + inputs)
     // so we want to add (inputs) many rows onto the bottom
     Mcont = Mcont.concatRows(new SimpleMatrix(inputs.getNum(), states.getNum() + inputs.getNum()));
-    var Mdisc = StateSpaceUtils.exp(Mcont);
+    var Mdisc = exp(Mcont);
 
     var discA = new Matrix<S, S>(new SimpleMatrix(states.getNum(), states.getNum()));
     var discB = new Matrix<S, I>(new SimpleMatrix(states.getNum(), inputs.getNum()));
@@ -269,36 +269,6 @@ public final class StateSpaceUtils {
    */
   private static SimpleMatrix eye(int rows) {
     return SimpleMatrix.identity(rows);
-  }
-
-  /**
-   * Computes the matrix exponential using Eigen's solver.
-   *
-   * @param A   the matrix to exponentiate.
-   * @param <N> the size of the matrix A.
-   * @return the exponential of A.
-   */
-  public static <N extends Num> Matrix<N, N> exp(
-          Matrix<N, N> A
-  ) {
-    Matrix<N, N> toReturn = new Matrix<>(new SimpleMatrix(A.getNumRows(), A.getNumCols()));
-    WPIUtilJNI.exp(A.getStorage().getDDRM().getData(), A.getNumRows(),
-            toReturn.getStorage().getDDRM().getData());
-    return toReturn;
-  }
-
-  /**
-   * Computes the matrix exponential using Eigen's solver.
-   *
-   * @param A the matrix to exponentiate.
-   * @return the exponential of A.
-   */
-  public static SimpleMatrix exp(
-          SimpleMatrix A
-  ) {
-    SimpleMatrix toReturn = new SimpleMatrix(A.numRows(), A.numRows());
-    WPIUtilJNI.exp(A.getDDRM().getData(), A.numRows(), toReturn.getDDRM().getData());
-    return toReturn;
   }
 
   /**
@@ -322,20 +292,30 @@ public final class StateSpaceUtils {
   }
 
   /**
-   * Returns true if (A, B) is a stabilizable pair.
+   * Computes the matrix exponential using Eigen's solver.
    *
-   * <p>(A,B) is stabilizable if and only if the uncontrollable eigenvalues of A, if
-   * any, have absolute values less than one, where an eigenvalue is
-   * uncontrollable if rank(lambda * I - A, B) %3C n where n is number of states.
-   *
-   * @param A System matrix.
-   * @return If the system is stabilizable or not.
+   * @param A the matrix to exponentiate.
+   * @return the exponential of A.
    */
-  public static SimpleMatrix isStabilizable(
+  public static SimpleMatrix exp(
           SimpleMatrix A
   ) {
     SimpleMatrix toReturn = new SimpleMatrix(A.numRows(), A.numRows());
     WPIUtilJNI.exp(A.getDDRM().getData(), A.numRows(), toReturn.getDDRM().getData());
+    return toReturn;
+  }
+
+  /**
+   * Computes the matrix exponential using Eigen's solver.
+   *
+   * @param A   the matrix to exponentiate.
+   * @param <N> the size of the matrix A.
+   * @return the exponential of A.
+   */
+  public static <N extends Num> Matrix<N, N> exp(Matrix<N, N> A) {
+    Matrix<N, N> toReturn = new Matrix<>(new SimpleMatrix(A.getNumRows(), A.getNumCols()));
+    WPIUtilJNI.exp(A.getStorage().getDDRM().getData(), A.getNumRows(),
+            toReturn.getStorage().getDDRM().getData());
     return toReturn;
   }
 

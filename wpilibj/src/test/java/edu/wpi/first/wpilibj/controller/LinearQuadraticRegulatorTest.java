@@ -1,5 +1,8 @@
 package edu.wpi.first.wpilibj.controller;
 
+import org.ejml.simple.SimpleMatrix;
+import org.junit.jupiter.api.Test;
+
 import edu.wpi.first.wpilibj.system.LinearSystem;
 import edu.wpi.first.wpilibj.system.plant.DCMotor;
 import edu.wpi.first.wpiutil.math.MatBuilder;
@@ -7,8 +10,6 @@ import edu.wpi.first.wpiutil.math.Matrix;
 import edu.wpi.first.wpiutil.math.Nat;
 import edu.wpi.first.wpiutil.math.numbers.N1;
 import edu.wpi.first.wpiutil.math.numbers.N2;
-import org.ejml.simple.SimpleMatrix;
-import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

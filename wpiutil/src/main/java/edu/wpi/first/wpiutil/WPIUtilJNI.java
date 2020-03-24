@@ -65,8 +65,8 @@ public final class WPIUtilJNI {
 
   /**
    * Returns true if (A, B) is a stabilizable pair.
-   * <p>
-   * (A,B) is stabilizable if and only if the uncontrollable eigenvalues of A, if
+   *
+   * <p>(A,B) is stabilizable if and only if the uncontrollable eigenvalues of A, if
    * any, have absolute values less than one, where an eigenvalue is
    * uncontrollable if rank(lambda * I - A, B) &lt; n where n is number of states.
    *

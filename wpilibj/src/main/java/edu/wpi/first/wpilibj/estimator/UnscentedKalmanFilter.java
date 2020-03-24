@@ -42,12 +42,12 @@ public class UnscentedKalmanFilter<S extends Num, I extends Num,
   /**
    * Constructs an Unscented Kalman Filter.
    *
-   * @param states TODO
-   * @param inputs TODO
-   * @param outputs TODO
-   * @param f TODO
-   * @param h TODO
-   * @param stateStdDevs TODO
+   * @param states             TODO
+   * @param inputs             TODO
+   * @param outputs            TODO
+   * @param f                  TODO
+   * @param h                  TODO
+   * @param stateStdDevs       TODO
    * @param measurementStdDevs TODO
    */
   @SuppressWarnings("ParameterName")
@@ -69,8 +69,8 @@ public class UnscentedKalmanFilter<S extends Num, I extends Num,
   }
 
   @SuppressWarnings("ParameterName")
-  private static <S extends Num, C extends Num>
-  SimpleMatrixUtils.Pair<Matrix<N1, C>, Matrix<C, C>> unscentedTransform(
+  private static <S extends Num, C extends Num> SimpleMatrixUtils.Pair
+          <Matrix<N1, C>, Matrix<C, C>> unscentedTransform(
           S s, C dim, Matrix sigmas, Matrix Wm, Matrix Wc, Matrix noiseCov
   ) {
     if (sigmas.getNumCols() != 2 * s.getNum() + 1 || sigmas.getNumCols() != dim.getNum()) {
@@ -187,6 +187,7 @@ public class UnscentedKalmanFilter<S extends Num, I extends Num,
    * @param u         New control input from controller.
    * @param dtSeconds Timestep for prediction.
    */
+  @SuppressWarnings("ParameterName")
   public void predict(Matrix<I, N1> u, double dtSeconds) {
     var sigmas = m_pts.sigmaPoints(m_xHat, m_P);
 
@@ -194,7 +195,7 @@ public class UnscentedKalmanFilter<S extends Num, I extends Num,
 
       var temp = new SimpleMatrix(1, states.getNum());
       CommonOps_DDRM.extract(sigmas.getStorage().getDDRM(), i, 0, temp.getDDRM());
-      var x = new Matrix<S, N1>(temp.transpose());
+      //var x = new Matrix<S, N1>(temp.transpose());
 
       // set the block from i, 0 to i+1, States to the result of RungeKutta
       //var rungeKutta = RungeKuttaHelper.RungeKutta(m_f, x, u, dtSeconds).transpose();
