@@ -100,7 +100,8 @@ public class DifferentialDrivePoseEstimator {
             Nat.N3(), Nat.N3(), Nat.N3(),
             this::f, (x, u) -> x,
             stateStdDevs, measurementStdDevs,
-            true, m_nominalDt);
+            m_nominalDt
+    );
     m_latencyCompensator = new KalmanFilterLatencyCompensator<>();
 
     m_gyroOffset = initialPoseMeters.getRotation().minus(gyroAngle);
@@ -108,8 +109,8 @@ public class DifferentialDrivePoseEstimator {
     m_observer.setXhat(StateSpaceUtil.poseToVector(initialPoseMeters));
   }
 
-  @SuppressWarnings("ParameterName")
-  private Matrix<N3, N1> continuousPoseExponential(Matrix<N3, N1> x, Matrix<N3, N1> u) {
+  @SuppressWarnings({"ParameterName", "MethodName"})
+  private Matrix<N3, N1> f(Matrix<N3, N1> x, Matrix<N3, N1> u) {
     // This is the continuous version of the pose exponential. We're not going to use the discrete
     // version because Runge-Kutta can do the integration for us. Note that we do *not* add x (i.e.
     // our diff eq starting condition)--Runge-Kutta does that for us.
@@ -120,11 +121,6 @@ public class DifferentialDrivePoseEstimator {
             0, 0, 1
     );
     return toFieldRotation.times(u);
-  }
-
-  @SuppressWarnings({"ParameterName", "MethodName"})
-  private Matrix<N3, N1> f(Matrix<N3, N1> x, Matrix<N3, N1> u) {
-    return continuousPoseExponential(x, u);
   }
 
   /**
