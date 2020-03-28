@@ -20,22 +20,23 @@ import edu.wpi.first.wpiutil.math.VecBuilder;
 
 public class MecanumDrivePoseEstimatorTest {
   @Test
+  @SuppressWarnings("LocalVariableName")
   public void testAccuracy() {
     var kinematics = new MecanumDriveKinematics(
-        new Translation2d(1, 1), new Translation2d(1, -1),
-        new Translation2d(-1, -1), new Translation2d(-1, 1));
+            new Translation2d(1, 1), new Translation2d(1, -1),
+            new Translation2d(-1, -1), new Translation2d(-1, 1));
 
     var estimator = new MecanumDrivePoseEstimator(
-        new Rotation2d(), new Pose2d(), kinematics,
-        VecBuilder.fill(0.01, 0.01, 0.01), VecBuilder.fill(0.1, 0.1, 0.1)
+            new Rotation2d(), new Pose2d(), kinematics,
+            VecBuilder.fill(0.01, 0.01, 0.01), VecBuilder.fill(0.1, 0.1, 0.1)
     );
 
     var odometry = new MecanumDriveOdometry(kinematics, new Rotation2d());
 
     var trajectory = TrajectoryGenerator.generateTrajectory(
-        List.of(new Pose2d(), new Pose2d(20, 20, Rotation2d.fromDegrees(0)),
-            new Pose2d(54, 54, new Rotation2d())),
-        new TrajectoryConfig(0.5, 2));
+            List.of(new Pose2d(), new Pose2d(20, 20, Rotation2d.fromDegrees(0)),
+                    new Pose2d(54, 54, new Rotation2d())),
+            new TrajectoryConfig(0.5, 2));
 
     var rand = new Random(5190);
 
@@ -64,8 +65,9 @@ public class MecanumDrivePoseEstimatorTest {
           estimator.addVisionMeasurement(lastVisionPose, lastVisionUpdateTime);
         }
         lastVisionPose = groundTruthState.poseMeters.transformBy(
-            new Transform2d(new Translation2d(rand.nextGaussian() * 1.0, rand.nextGaussian() * 1.0),
-                new Rotation2d(rand.nextGaussian() * 0.05))
+                new Transform2d(new Translation2d(rand.nextGaussian() * 1.0,
+                        rand.nextGaussian() * 1.0),
+                        new Rotation2d(rand.nextGaussian() * 0.05))
         );
         lastVisionUpdateTime = t;
         visionXs.add(lastVisionPose.getTranslation().getX());
@@ -73,8 +75,8 @@ public class MecanumDrivePoseEstimatorTest {
       }
 
       var wheelSpeeds = kinematics.toWheelSpeeds(new ChassisSpeeds(
-          groundTruthState.velocityMetersPerSecond, 0,
-          groundTruthState.velocityMetersPerSecond * groundTruthState.curvatureRadPerMeter));
+              groundTruthState.velocityMetersPerSecond, 0,
+              groundTruthState.velocityMetersPerSecond * groundTruthState.curvatureRadPerMeter));
 
       wheelSpeeds.frontLeftMetersPerSecond += rand.nextGaussian() * 0.1;
       wheelSpeeds.frontRightMetersPerSecond += rand.nextGaussian() * 0.1;
@@ -82,10 +84,11 @@ public class MecanumDrivePoseEstimatorTest {
       wheelSpeeds.rearRightMetersPerSecond += rand.nextGaussian() * 0.1;
 
       var xhat = estimator.updateWithTime(t,
-          groundTruthState.poseMeters.getRotation().plus(new Rotation2d(rand.nextGaussian() * 0.05)),
-          wheelSpeeds);
+              groundTruthState.poseMeters.getRotation()
+                      .plus(new Rotation2d(rand.nextGaussian() * 0.05)), wheelSpeeds);
 
-      double error = groundTruthState.poseMeters.getTranslation().getDistance(xhat.getTranslation());
+      double error =
+              groundTruthState.poseMeters.getTranslation().getDistance(xhat.getTranslation());
       if (error > maxError) {
         maxError = error;
       }
@@ -102,18 +105,18 @@ public class MecanumDrivePoseEstimatorTest {
     System.out.println(errorSum / (trajectory.getTotalTimeSeconds() / dt));
     System.out.println(maxError);
 
-//    var chartBuilder = new XYChartBuilder();
-//    chartBuilder.title = "The Magic of Sensor Fusion";
-//    var chart = chartBuilder.build();
-//
-//    chart.addSeries("Vision", visionXs, visionYs);
-//    chart.addSeries("Trajectory", trajXs, trajYs);
-//    chart.addSeries("xHat", observerXs, observerYs);
-//
-//    new SwingWrapper<>(chart).displayChart();
-//    try {
-//        Thread.sleep(1000000000);
-//    } catch (InterruptedException e) {
-//    }
+    //    var chartBuilder = new XYChartBuilder();
+    //    chartBuilder.title = "The Magic of Sensor Fusion";
+    //    var chart = chartBuilder.build();
+    //
+    //    chart.addSeries("Vision", visionXs, visionYs);
+    //    chart.addSeries("Trajectory", trajXs, trajYs);
+    //    chart.addSeries("xHat", observerXs, observerYs);
+    //
+    //    new SwingWrapper<>(chart).displayChart();
+    //    try {
+    //        Thread.sleep(1000000000);
+    //    } catch (InterruptedException e) {
+    //    }
   }
 }

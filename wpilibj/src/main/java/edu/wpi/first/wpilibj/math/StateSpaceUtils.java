@@ -228,8 +228,6 @@ public final class StateSpaceUtils {
    *
    * @param <S>       Nat representing the states of the system.
    * @param <I>       Nat representing the inputs to the system.
-   * @param states    Num representing the states of the system.
-   * @param inputs    Num representing the inputs to the system.
    * @param contA     Continuous system matrix.
    * @param contB     Continuous input matrix.
    * @param dtSeconds Discretization timestep.
@@ -237,8 +235,7 @@ public final class StateSpaceUtils {
    */
   @SuppressWarnings("LocalVariableName")
   public static <S extends Num, I extends Num> SimpleMatrixUtils.Pair<Matrix<S, S>,
-          Matrix<S, I>> discretizeAB(Nat<S> states, Nat<I> inputs,
-                                     Matrix<S, S> contA,
+          Matrix<S, I>> discretizeAB(Matrix<S, S> contA,
                                      Matrix<S, I> contB,
                                      double dtSeconds) {
 
@@ -250,13 +247,14 @@ public final class StateSpaceUtils {
     // so our Mcont is now states x (states + inputs)
     // and we want (states + inputs) x (states + inputs)
     // so we want to add (inputs) many rows onto the bottom
-    Mcont = Mcont.concatRows(new SimpleMatrix(inputs.getNum(), states.getNum() + inputs.getNum()));
+    Mcont = Mcont.concatRows(new SimpleMatrix(contB.getNumCols(),
+            contB.getNumRows() + contB.getNumCols()));
     var Mdisc = exp(Mcont);
 
-    var discA = new Matrix<S, S>(new SimpleMatrix(states.getNum(), states.getNum()));
-    var discB = new Matrix<S, I>(new SimpleMatrix(states.getNum(), inputs.getNum()));
+    var discA = new Matrix<S, S>(new SimpleMatrix(contB.getNumRows(), contB.getNumRows()));
+    var discB = new Matrix<S, I>(new SimpleMatrix(contB.getNumRows(), contB.getNumCols()));
     CommonOps_DDRM.extract(Mdisc.getDDRM(), 0, 0, discA.getStorage().getDDRM());
-    CommonOps_DDRM.extract(Mdisc.getDDRM(), 0, states.getNum(), discB.getStorage().getDDRM());
+    CommonOps_DDRM.extract(Mdisc.getDDRM(), 0, contB.getNumRows(), discB.getStorage().getDDRM());
 
     return new SimpleMatrixUtils.Pair<>(discA, discB);
   }

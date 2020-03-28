@@ -9,6 +9,7 @@ package edu.wpi.first.wpiutil.math;
 
 import java.util.Objects;
 
+import org.ejml.data.DMatrixD1;
 import org.ejml.dense.row.CommonOps_DDRM;
 import org.ejml.dense.row.NormOps_DDRM;
 import org.ejml.simple.SimpleMatrix;

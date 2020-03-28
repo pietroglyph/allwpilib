@@ -376,7 +376,7 @@ public class LinearSystem<S extends Num, I extends Num,
    */
   @SuppressWarnings("ParameterName")
   public Matrix<S, N1> calculateX(Matrix<S, N1> x, Matrix<I, N1> u, double dtSeconds) {
-    var discABpair = StateSpaceUtils.discretizeAB(m_states, m_inputs, m_A, m_B, dtSeconds);
+    var discABpair = StateSpaceUtils.discretizeAB(m_A, m_B, dtSeconds);
 
     return (discABpair.getFirst().times(x)).plus(discABpair.getSecond().times(clampInput(u)));
   }
