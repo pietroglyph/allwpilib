@@ -6,7 +6,7 @@ import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.geometry.Twist2d;
 import edu.wpi.first.wpilibj.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.wpilibj.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.math.StateSpaceUtils;
+import edu.wpi.first.wpilibj.math.StateSpaceUtil;
 import edu.wpi.first.wpilibj.system.LinearSystem;
 import edu.wpi.first.wpiutil.math.MatBuilder;
 import edu.wpi.first.wpiutil.math.Matrix;
@@ -80,7 +80,7 @@ public class SwerveDrivePoseEstimator {
 
     m_gyroOffset = initialPoseMeters.getRotation().minus(gyroAngle);
     m_previousAngle = initialPoseMeters.getRotation();
-    m_observer.setXhat(StateSpaceUtils.poseToVector(initialPoseMeters));
+    m_observer.setXhat(StateSpaceUtil.poseToVector(initialPoseMeters));
   }
 
   /**
@@ -134,7 +134,7 @@ public class SwerveDrivePoseEstimator {
   public void addVisionMeasurement(Pose2d visionRobotPoseMeters, double timestampSeconds) {
     m_latencyCompensator.applyPastMeasurement(
             m_observer, m_nominalDt,
-            StateSpaceUtils.poseToVector(visionRobotPoseMeters), timestampSeconds
+            StateSpaceUtil.poseToVector(visionRobotPoseMeters), timestampSeconds
     );
   }
 

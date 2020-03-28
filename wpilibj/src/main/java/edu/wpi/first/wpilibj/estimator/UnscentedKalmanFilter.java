@@ -5,7 +5,7 @@ import java.util.function.BiFunction;
 import org.ejml.dense.row.CommonOps_DDRM;
 import org.ejml.simple.SimpleMatrix;
 
-import edu.wpi.first.wpilibj.math.StateSpaceUtils;
+import edu.wpi.first.wpilibj.math.StateSpaceUtil;
 import edu.wpi.first.wpiutil.math.Matrix;
 import edu.wpi.first.wpiutil.math.Nat;
 import edu.wpi.first.wpiutil.math.Num;
@@ -62,8 +62,8 @@ public class UnscentedKalmanFilter<S extends Num, I extends Num,
 
     m_f = f;
     m_h = h;
-    m_Q = StateSpaceUtils.makeCovMatrix(states, stateStdDevs);
-    m_R = StateSpaceUtils.makeCovMatrix(outputs, measurementStdDevs);
+    m_Q = StateSpaceUtil.makeCovMatrix(states, stateStdDevs);
+    m_R = StateSpaceUtil.makeCovMatrix(outputs, measurementStdDevs);
 
     reset();
   }

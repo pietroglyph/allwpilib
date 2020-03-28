@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.geometry.Translation2d;
 import edu.wpi.first.wpilibj.kinematics.MecanumDriveKinematics;
 import edu.wpi.first.wpilibj.kinematics.MecanumDriveWheelSpeeds;
-import edu.wpi.first.wpilibj.math.StateSpaceUtils;
+import edu.wpi.first.wpilibj.math.StateSpaceUtil;
 import edu.wpi.first.wpilibj.system.LinearSystem;
 import edu.wpi.first.wpiutil.math.MatBuilder;
 import edu.wpi.first.wpiutil.math.Matrix;
@@ -110,7 +110,7 @@ public class MecanumDrivePoseEstimator {
     m_observer = new KalmanFilter<>(Nat.N3(), Nat.N3(), observerSystem, stateStdDevs,
         measurementStdDevs, nominalDtSeconds);
 
-    m_observer.setXhat(StateSpaceUtils.poseToVector(initialPoseMeters));
+    m_observer.setXhat(StateSpaceUtil.poseToVector(initialPoseMeters));
   }
 
   /**
@@ -156,7 +156,7 @@ public class MecanumDrivePoseEstimator {
    */
   public void addVisionMeasurement(Pose2d visionRobotPoseMeters, double timestampSeconds) {
     m_latencyCompensator.applyPastMeasurement(
-        m_observer, m_nominalDt, StateSpaceUtils.poseToVector(visionRobotPoseMeters),
+        m_observer, m_nominalDt, StateSpaceUtil.poseToVector(visionRobotPoseMeters),
         timestampSeconds);
   }
 

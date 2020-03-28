@@ -16,9 +16,9 @@ import edu.wpi.first.wpiutil.math.numbers.N1;
 import edu.wpi.first.wpiutil.math.numbers.N3;
 
 @SuppressWarnings({"PMD.TooManyMethods", "ParameterName"})
-public final class StateSpaceUtils {
+public final class StateSpaceUtil {
 
-  private StateSpaceUtils() {
+  private StateSpaceUtil() {
     // Utility class
   }
 

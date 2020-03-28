@@ -2,7 +2,7 @@ package edu.wpi.first.wpilibj.estimator;
 
 import java.util.function.BiFunction;
 
-import edu.wpi.first.wpilibj.math.StateSpaceUtils;
+import edu.wpi.first.wpilibj.math.StateSpaceUtil;
 import edu.wpi.first.wpilibj.system.NumericalJacobian;
 import edu.wpi.first.wpilibj.system.RungeKutta;
 import edu.wpi.first.wpiutil.math.Drake;
@@ -71,21 +71,21 @@ public class ExtendedKalmanFilter<S extends Num, I extends Num, O extends Num>
 
     reset();
 
-    m_contQ = StateSpaceUtils.makeCovMatrix(states, stateStdDevs);
-    var contR = StateSpaceUtils.makeCovMatrix(outputs, measurementStdDevs);
+    m_contQ = StateSpaceUtil.makeCovMatrix(states, stateStdDevs);
+    var contR = StateSpaceUtil.makeCovMatrix(outputs, measurementStdDevs);
 
     final var contA = NumericalJacobian
             .numericalJacobianX(states, states, f, m_xHat, MatrixUtils.zeros(inputs));
     final var C = NumericalJacobian
             .numericalJacobianX(outputs, states, h, m_xHat, MatrixUtils.zeros(inputs));
 
-    final var discPair = StateSpaceUtils.discretizeAQTaylor(contA, m_contQ, dtSeconds);
+    final var discPair = StateSpaceUtil.discretizeAQTaylor(contA, m_contQ, dtSeconds);
     final var discA = discPair.getFirst();
     final var discQ = discPair.getSecond();
 
-    m_discR = StateSpaceUtils.discretizeR(contR, dtSeconds);
+    m_discR = StateSpaceUtil.discretizeR(contR, dtSeconds);
 
-    if (StateSpaceUtils.isStabilizable(
+    if (StateSpaceUtil.isStabilizable(
             discA.transpose(), C.transpose()) && outputs.getNum() <= states.getNum()) {
       m_initP = new Matrix<>(Drake.discreteAlgebraicRiccatiEquation(
               discA.transpose(), C.transpose(), discQ, m_discR));
@@ -207,7 +207,7 @@ public class ExtendedKalmanFilter<S extends Num, I extends Num, O extends Num>
     final var contA = NumericalJacobian.numericalJacobianX(m_states, m_states, f, m_xHat, u);
 
     // Find discrete A and Q
-    final var discPair = StateSpaceUtils.discretizeAQTaylor(contA, m_contQ, dtSeconds);
+    final var discPair = StateSpaceUtil.discretizeAQTaylor(contA, m_contQ, dtSeconds);
     final var discA = discPair.getFirst();
     final var discQ = discPair.getSecond();
 

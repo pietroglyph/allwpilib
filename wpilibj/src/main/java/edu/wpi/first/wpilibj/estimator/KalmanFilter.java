@@ -2,7 +2,7 @@ package edu.wpi.first.wpilibj.estimator;
 
 import org.ejml.simple.SimpleMatrix;
 
-import edu.wpi.first.wpilibj.math.StateSpaceUtils;
+import edu.wpi.first.wpilibj.math.StateSpaceUtil;
 import edu.wpi.first.wpilibj.system.LinearSystem;
 import edu.wpi.first.wpiutil.math.Drake;
 import edu.wpi.first.wpiutil.math.Matrix;
@@ -87,16 +87,16 @@ public class KalmanFilter<S extends Num, I extends Num,
 
     this.m_plant = plant;
 
-    this.m_contQ = StateSpaceUtils.makeCovMatrix(states, stateStdDevs);
-    this.m_contR = StateSpaceUtils.makeCovMatrix(outputs, measurementStdDevs);
+    this.m_contQ = StateSpaceUtil.makeCovMatrix(states, stateStdDevs);
+    this.m_contR = StateSpaceUtil.makeCovMatrix(outputs, measurementStdDevs);
 
-    var pair = StateSpaceUtils.discretizeAQTaylor(plant.getA(), m_contQ, dtSeconds);
+    var pair = StateSpaceUtil.discretizeAQTaylor(plant.getA(), m_contQ, dtSeconds);
     var discA = pair.getFirst();
     var discQ = pair.getSecond();
 
-    m_discR = StateSpaceUtils.discretizeR(m_contR, dtSeconds);
+    m_discR = StateSpaceUtil.discretizeR(m_contR, dtSeconds);
 
-    if (StateSpaceUtils.isStabilizable(discA.transpose(),
+    if (StateSpaceUtil.isStabilizable(discA.transpose(),
             plant.getC().transpose()) && outputs.getNum() <= states.getNum()) {
       m_P = new Matrix<>(Drake.discreteAlgebraicRiccatiEquation(
               discA.transpose(), plant.getC().transpose(), discQ, m_discR));
@@ -197,12 +197,12 @@ public class KalmanFilter<S extends Num, I extends Num,
   public void predict(Matrix<I, N1> u, double dtSeconds) {
     m_plant.setX(m_plant.calculateX(m_plant.getX(), u, dtSeconds));
 
-    var pair = StateSpaceUtils.discretizeAQTaylor(m_plant.getA(), m_contQ, dtSeconds);
+    var pair = StateSpaceUtil.discretizeAQTaylor(m_plant.getA(), m_contQ, dtSeconds);
     var discA = pair.getFirst();
     var discQ = pair.getSecond();
 
     m_P = discA.times(m_P).times(discA.transpose()).plus(discQ);
-    m_discR = StateSpaceUtils.discretizeR(m_contR, dtSeconds);
+    m_discR = StateSpaceUtil.discretizeR(m_contR, dtSeconds);
   }
 
   /**
