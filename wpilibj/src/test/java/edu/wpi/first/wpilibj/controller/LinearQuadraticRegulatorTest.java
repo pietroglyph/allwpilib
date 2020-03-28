@@ -80,8 +80,8 @@ public class LinearQuadraticRegulatorTest {
 
     var regulator = new LinearQuadraticRegulator<>(
             plant,
-            new MatBuilder<>(Nat.N2(), Nat.N1()).fill(0.1, 0.2),
-            new MatBuilder<>(Nat.N1(), Nat.N1()).fill(12.0),
+            VecBuilder.fill(0.1, 0.2),
+            VecBuilder.fill(12.0),
             dt);
 
     assertEquals(10.381, regulator.getK().get(0, 0), 1e-2);

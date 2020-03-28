@@ -50,6 +50,7 @@ public class LinearSystemLoop<S extends Num, I extends Num,
     this.m_controller = controller;
     this.m_observer = observer;
 
+    m_nextR = new Matrix<>(new SimpleMatrix(states.getNum(), 0));
     reset();
   }
 
