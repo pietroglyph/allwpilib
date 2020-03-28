@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.system.plant.DCMotor;
 import edu.wpi.first.wpiutil.math.MatBuilder;
 import edu.wpi.first.wpiutil.math.Matrix;
 import edu.wpi.first.wpiutil.math.Nat;
+import edu.wpi.first.wpiutil.math.VecBuilder;
 import edu.wpi.first.wpiutil.math.numbers.N1;
 import edu.wpi.first.wpiutil.math.numbers.N2;
 
@@ -92,10 +93,8 @@ public class LinearQuadraticRegulatorTest {
   @SuppressWarnings("LocalVariableName")
   public void testLQROnArm() {
 
-    var qElms = new Matrix<N2, N1>(new SimpleMatrix(2, 1));
-    qElms.getStorage().setColumn(0, 0, 0.01745, 0.08726);
-    var rElms = new Matrix<N1, N1>(new SimpleMatrix(1, 1));
-    rElms.getStorage().setColumn(0, 0, 12.0);
+    var qElms = VecBuilder.fill(0.01745, 0.08726);
+    var rElms = VecBuilder.fill(12.0);
     var dt = 0.00505;
 
     var controller = new LinearQuadraticRegulator<>(
@@ -106,5 +105,4 @@ public class LinearQuadraticRegulatorTest {
     assertEquals(19.16, k.get(0, 0), 0.1);
     assertEquals(3.32, k.get(0, 1), 0.1);
   }
-
 }

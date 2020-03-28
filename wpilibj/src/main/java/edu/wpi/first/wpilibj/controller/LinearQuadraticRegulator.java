@@ -1,6 +1,5 @@
 package edu.wpi.first.wpilibj.controller;
 
-import org.ejml.dense.row.CommonOps_DDRM;
 import org.ejml.simple.SimpleMatrix;
 
 import edu.wpi.first.wpilibj.math.StateSpaceUtils;
@@ -94,36 +93,22 @@ public class LinearQuadraticRegulator<S extends Num, I extends Num,
     this.m_A = A;
     this.m_B = B;
 
-    var Mcont = new SimpleMatrix(0, 0);
-    var scaledA = m_A.times(dtSeconds);
-    var scaledB = m_B.times(dtSeconds);
-    Mcont = Mcont.concatColumns(scaledA.getStorage());
-    Mcont = Mcont.concatColumns(scaledB.getStorage());
-    // Mcont is now states x (states + inputs)
-    // and we want (states + inputs) x (states + inputs)
-    // so we (inputs) many rows onto the bottom
-    Mcont = Mcont.concatRows(new SimpleMatrix(B.getNumCols(), B.getNumRows() + B.getNumCols()));
-
-    // calculate discrete A and B matrices
-    SimpleMatrix Mstate = StateSpaceUtils.exp(Mcont);
-
-    var discA = new SimpleMatrix(A.getNumRows(), A.getNumCols());
-    var discB = new SimpleMatrix(B.getNumRows(), B.getNumCols());
-    CommonOps_DDRM.extract(Mstate.getDDRM(), 0, 0, discA.getDDRM());
-    CommonOps_DDRM.extract(Mstate.getDDRM(), 0, A.getNumCols(), discB.getDDRM());
+    var discABPair = StateSpaceUtils.discretizeAB(m_A, m_B, dtSeconds);
 
     // make the cost matrices
     var Q = StateSpaceUtils.makeCostMatrix(qelms);
     var R = StateSpaceUtils.makeCostMatrix(relms);
 
-    this.m_discB = new Matrix<>(discB);
-    this.m_discA = new Matrix<>(discA);
+    this.m_discA = discABPair.getFirst();
+    this.m_discB = discABPair.getSecond();
 
-    var S = Drake.discreteAlgebraicRiccatiEquation(discA, discB, Q.getStorage(), R.getStorage());
+    var S = Drake.discreteAlgebraicRiccatiEquation(m_discA, m_discB, Q, R);
 
-    m_K = new Matrix<>((discB.transpose().mult(S).mult(discB).plus(R.getStorage())).invert()
-            .mult(discB.transpose()).mult(S).mult(discA)); // TODO (HIGH) SWITCH ALGORITHMS
+    m_K = new Matrix<>((m_discB.getStorage().transpose().mult(S).mult(m_discB.getStorage())
+            .plus(R.getStorage())).invert().mult(m_discB.getStorage().transpose()).mult(S)
+            .mult(m_discA.getStorage())); // TODO (HIGH) SWITCH ALGORITHMS
 
+    initializeRandU(B.getNumRows(), B.getNumCols());
     reset();
   }
 
@@ -147,14 +132,20 @@ public class LinearQuadraticRegulator<S extends Num, I extends Num,
     this.m_A = A;
     this.m_B = B;
 
-    var discABpair = StateSpaceUtils.discretizeAB(states, inputs, A, B, dtSeconds);
+    var discABpair = StateSpaceUtils.discretizeAB(A, B, dtSeconds);
     this.m_discA = discABpair.getFirst();
     this.m_discB = discABpair.getSecond();
 
     m_K = k;
 
-    this.m_r = new Matrix<>(new SimpleMatrix(states.getNum(), 1));
-    this.m_u = new Matrix<>(new SimpleMatrix(inputs.getNum(), 1));
+    initializeRandU(m_B.getNumRows(), m_B.getNumCols());
+    reset();
+  }
+
+  private void initializeRandU(int states, int inputs) {
+    m_r = new Matrix<>(new SimpleMatrix(states, 1));
+    m_u = new Matrix<>(new SimpleMatrix(inputs, 1));
+    m_uff = new Matrix<>(new SimpleMatrix(inputs, 1));
   }
 
   /**
