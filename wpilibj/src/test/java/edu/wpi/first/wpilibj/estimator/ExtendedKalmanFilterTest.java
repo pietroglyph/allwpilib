@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.math.StateSpaceUtils;
+import edu.wpi.first.wpilibj.math.StateSpaceUtil;
 import edu.wpi.first.wpilibj.system.NumericalJacobian;
 import edu.wpi.first.wpilibj.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
@@ -92,7 +92,7 @@ public class ExtendedKalmanFilterTest {
       observer.correct(u, localY);
 
       var globalY = getGlobalMeasurementModel(observer.getXhat(), u);
-      var R = StateSpaceUtils.makeCostMatrix(
+      var R = StateSpaceUtil.makeCostMatrix(
               VecBuilder.fill(0.01, 0.01, 0.0001, 0.5, 0.5));
       observer.correct(Nat.N5(),
               u, globalY, ExtendedKalmanFilterTest::getGlobalMeasurementModel, R);
@@ -144,7 +144,7 @@ public class ExtendedKalmanFilterTest {
               getLocalMeasurementModel(observer.getXhat(), MatrixUtils.zeros(Nat.N2(), Nat.N1()));
       var whiteNoiseStdDevs = VecBuilder.fill(0.0001, 0.5, 0.5);
       observer.correct(u,
-              localY.plus(StateSpaceUtils.makeWhiteNoiseVector(Nat.N3(), whiteNoiseStdDevs)));
+              localY.plus(StateSpaceUtil.makeWhiteNoiseVector(Nat.N3(), whiteNoiseStdDevs)));
 
       Matrix<N5, N1> rdot = nextR.minus(r).div(dtSeconds);
       u = new Matrix<>(SimpleMatrixUtils.householderQrDecompose(B.getStorage())
@@ -159,7 +159,7 @@ public class ExtendedKalmanFilterTest {
     observer.correct(u, localY);
 
     var globalY = getGlobalMeasurementModel(observer.getXhat(), u);
-    var R = StateSpaceUtils.makeCostMatrix(
+    var R = StateSpaceUtil.makeCostMatrix(
             VecBuilder.fill(0.01, 0.01, 0.0001, 0.5, 0.5));
     observer.correct(Nat.N5(), u, globalY, ExtendedKalmanFilterTest::getGlobalMeasurementModel, R);
   }

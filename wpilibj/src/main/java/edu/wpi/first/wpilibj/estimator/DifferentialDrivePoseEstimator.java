@@ -4,7 +4,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.geometry.Twist2d;
-import edu.wpi.first.wpilibj.math.StateSpaceUtils;
+import edu.wpi.first.wpilibj.math.StateSpaceUtil;
 import edu.wpi.first.wpiutil.math.Matrix;
 import edu.wpi.first.wpiutil.math.Nat;
 import edu.wpi.first.wpiutil.math.VecBuilder;
@@ -94,7 +94,7 @@ public class DifferentialDrivePoseEstimator {
 
     m_gyroOffset = initialPoseMeters.getRotation().minus(gyroAngle);
     m_previousAngle = initialPoseMeters.getRotation();
-    m_observer.setXhat(StateSpaceUtils.poseToVector(initialPoseMeters));
+    m_observer.setXhat(StateSpaceUtil.poseToVector(initialPoseMeters));
   }
 
   @SuppressWarnings({"ParameterName", "MethodName"})
@@ -160,7 +160,7 @@ public class DifferentialDrivePoseEstimator {
   public void addVisionMeasurement(Pose2d visionRobotPoseMeters, double timestampSeconds) {
     m_latencyCompensator.applyPastMeasurement(
             m_observer, m_nominalDt,
-            StateSpaceUtils.poseToVector(visionRobotPoseMeters), timestampSeconds
+            StateSpaceUtil.poseToVector(visionRobotPoseMeters), timestampSeconds
     );
   }
 

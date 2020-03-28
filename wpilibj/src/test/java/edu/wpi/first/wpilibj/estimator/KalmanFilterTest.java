@@ -20,6 +20,7 @@ import edu.wpi.first.wpiutil.math.numbers.N3;
 import edu.wpi.first.wpiutil.math.numbers.N6;
 
 import static edu.wpi.first.wpilibj.controller.LinearSystemLoopTest.kDt;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class KalmanFilterTest {
@@ -65,12 +66,7 @@ public class KalmanFilterTest {
     var Q = new MatBuilder<>(Nat.N2(), Nat.N1()).fill(0.05, 1.0);
     var R = new MatBuilder<>(Nat.N1(), Nat.N1()).fill(0.0001);
 
-    var filter = new KalmanFilter<>(Nat.N2(), Nat.N1(), plant, Q, R, kDt);
-
-    var p = filter.getP();
-    var gain = filter.getXhat();
-
-    System.out.printf("p: \n%s\n: gain: \n%s\n", p, gain);
+    assertDoesNotThrow(() -> new KalmanFilter<>(Nat.N2(), Nat.N1(), plant, Q, R, kDt));
   }
 
   @Test
