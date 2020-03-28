@@ -6,7 +6,6 @@ import edu.wpi.first.wpilibj.math.StateSpaceUtil;
 import edu.wpi.first.wpilibj.system.LinearSystem;
 import edu.wpi.first.wpiutil.math.Drake;
 import edu.wpi.first.wpiutil.math.Matrix;
-import edu.wpi.first.wpiutil.math.Nat;
 import edu.wpi.first.wpiutil.math.Num;
 import edu.wpi.first.wpiutil.math.SimpleMatrixUtils;
 import edu.wpi.first.wpiutil.math.numbers.N1;
@@ -115,8 +114,6 @@ public class LinearQuadraticRegulator<S extends Num, I extends Num,
   /**
    * Constructs a controller with the given coefficients and plant.
    *
-   * @param states    a Nat representing the number of states.
-   * @param inputs    a Nat representing the number of inputs.
    * @param A         Continuous system matrix of the plant being controlled.
    * @param B         Continuous input matrix of the plant being controlled.
    * @param k         the controller matrix K to use.
@@ -124,7 +121,6 @@ public class LinearQuadraticRegulator<S extends Num, I extends Num,
    */
   @SuppressWarnings("ParameterName")
   public LinearQuadraticRegulator(
-          Nat<S> states, Nat<I> inputs,
           Matrix<S, S> A, Matrix<S, I> B,
           Matrix<I, S> k,
           double dtSeconds
