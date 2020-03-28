@@ -1,11 +1,18 @@
 package edu.wpi.first.wpilibj.system;
 
+import org.ejml.simple.SimpleMatrix;
+
 import edu.wpi.first.wpilibj.math.StateSpaceUtils;
 import edu.wpi.first.wpilibj.system.plant.DCMotor;
-import edu.wpi.first.wpiutil.math.*;
+import edu.wpi.first.wpiutil.math.MatBuilder;
+import edu.wpi.first.wpiutil.math.MathUtil;
+import edu.wpi.first.wpiutil.math.Matrix;
+import edu.wpi.first.wpiutil.math.MatrixUtils;
+import edu.wpi.first.wpiutil.math.Nat;
+import edu.wpi.first.wpiutil.math.Num;
+import edu.wpi.first.wpiutil.math.VecBuilder;
 import edu.wpi.first.wpiutil.math.numbers.N1;
 import edu.wpi.first.wpiutil.math.numbers.N2;
-import org.ejml.simple.SimpleMatrix;
 
 @SuppressWarnings("PMD.TooManyMethods")
 public class LinearSystem<S extends Num, I extends Num,
@@ -369,12 +376,9 @@ public class LinearSystem<S extends Num, I extends Num,
    */
   @SuppressWarnings("ParameterName")
   public Matrix<S, N1> calculateX(Matrix<S, N1> x, Matrix<I, N1> u, double dtSeconds) {
-    Matrix<S, S> discA = new Matrix<>(new SimpleMatrix(m_states.getNum(), m_states.getNum()));
-    Matrix<S, I> discB = new Matrix<>(new SimpleMatrix(m_states.getNum(), m_inputs.getNum()));
+    var discABpair = StateSpaceUtils.discretizeAB(m_states, m_inputs, m_A, m_B, dtSeconds);
 
-    StateSpaceUtils.discretizeAB(m_states, m_inputs, m_A, m_B, dtSeconds, discA, discB);
-
-    return (discA.times(x)).plus(discB.times(clampInput(u)));
+    return (discABpair.getFirst().times(x)).plus(discABpair.getSecond().times(clampInput(u)));
   }
 
   /**
@@ -443,8 +447,8 @@ public class LinearSystem<S extends Num, I extends Num,
                     0, G * motor.m_KtNMPerAmp / (motor.m_rOhms * radiusMeters * massKg)),
             new MatBuilder<>(Nat.N1(), Nat.N2()).fill(1, 0),
             MatrixUtils.zeros(Nat.N1()),
-            new MatBuilder<>(Nat.N1(), Nat.N1()).fill(-maxVoltage),
-            new MatBuilder<>(Nat.N1(), Nat.N1()).fill(maxVoltage));
+            VecBuilder.fill(-maxVoltage),
+            VecBuilder.fill(maxVoltage));
   }
 
   /**
@@ -462,15 +466,15 @@ public class LinearSystem<S extends Num, I extends Num,
                                                               double jKgMetersSquared,
                                                               double G, double maxVoltage) {
     return new LinearSystem<>(Nat.N1(), Nat.N1(), Nat.N1(),
-            new MatBuilder<>(Nat.N1(), Nat.N1()).fill(
+            VecBuilder.fill(
                     -G * G * motor.m_KtNMPerAmp
                             / (motor.m_KvRadPerSecPerVolt * motor.m_rOhms * jKgMetersSquared)),
-            new MatBuilder<>(Nat.N1(), Nat.N1()).fill(G * motor.m_KtNMPerAmp
+            VecBuilder.fill(G * motor.m_KtNMPerAmp
                     / (motor.m_rOhms * jKgMetersSquared)),
             MatrixUtils.eye(Nat.N1()),
             MatrixUtils.zeros(Nat.N1()),
-            new MatBuilder<>(Nat.N1(), Nat.N1()).fill(-maxVoltage),
-            new MatBuilder<>(Nat.N1(), Nat.N1()).fill(maxVoltage));
+            VecBuilder.fill(-maxVoltage),
+            VecBuilder.fill(maxVoltage));
   }
 
   /**
@@ -497,8 +501,8 @@ public class LinearSystem<S extends Num, I extends Num,
                     / (motor.m_rOhms * jKgSquaredMeters)),
             new MatBuilder<>(Nat.N1(), Nat.N2()).fill(1, 0),
             MatrixUtils.zeros(Nat.N1()),
-            new MatBuilder<>(Nat.N1(), Nat.N1()).fill(-maxVoltage),
-            new MatBuilder<>(Nat.N1(), Nat.N1()).fill(maxVoltage));
+            VecBuilder.fill(-maxVoltage),
+            VecBuilder.fill(maxVoltage));
   }
 
   /**
@@ -517,12 +521,12 @@ public class LinearSystem<S extends Num, I extends Num,
   public static LinearSystem<N1, N1, N1> identifyVelocitySystem(double kV, double kA,
                                                                 double maxVoltage) {
     return new LinearSystem<>(Nat.N1(), Nat.N1(), Nat.N1(),
-            new MatBuilder<>(Nat.N1(), Nat.N1()).fill(-kV / kA),
-            new MatBuilder<>(Nat.N1(), Nat.N1()).fill(1.0 / kA),
-            new MatBuilder<>(Nat.N1(), Nat.N1()).fill(1.0),
-            new MatBuilder<>(Nat.N1(), Nat.N1()).fill(0.0),
-            new MatBuilder<>(Nat.N1(), Nat.N1()).fill(-maxVoltage),
-            new MatBuilder<>(Nat.N1(), Nat.N1()).fill(maxVoltage));
+            VecBuilder.fill(-kV / kA),
+            VecBuilder.fill(1.0 / kA),
+            VecBuilder.fill(1.0),
+            VecBuilder.fill(0.0),
+            VecBuilder.fill(-maxVoltage),
+            VecBuilder.fill(maxVoltage));
   }
 
   /**
@@ -544,9 +548,9 @@ public class LinearSystem<S extends Num, I extends Num,
             new MatBuilder<>(Nat.N2(), Nat.N2()).fill(0.0, 1.0, 0.0, -kV / kA),
             new MatBuilder<>(Nat.N2(), Nat.N1()).fill(0.0, 1.0 / kA),
             new MatBuilder<>(Nat.N1(), Nat.N2()).fill(1.0, 0.0),
-            new MatBuilder<>(Nat.N1(), Nat.N1()).fill(0.0),
-            new MatBuilder<>(Nat.N1(), Nat.N1()).fill(-maxVoltage),
-            new MatBuilder<>(Nat.N1(), Nat.N1()).fill(maxVoltage));
+            VecBuilder.fill(0.0),
+            VecBuilder.fill(-maxVoltage),
+            VecBuilder.fill(maxVoltage));
   }
 
   /**
@@ -581,8 +585,8 @@ public class LinearSystem<S extends Num, I extends Num,
             new MatBuilder<>(Nat.N2(), Nat.N2()).fill(B1, B2, B2, B1),
             new MatBuilder<>(Nat.N2(), Nat.N2()).fill(1, 0, 0, 1),
             new MatBuilder<>(Nat.N2(), Nat.N2()).fill(0, 0, 0, 0),
-            new MatBuilder<>(Nat.N2(), Nat.N1()).fill(-maxVoltage, -maxVoltage),
-            new MatBuilder<>(Nat.N2(), Nat.N1()).fill(maxVoltage, maxVoltage));
+            VecBuilder.fill(-maxVoltage, -maxVoltage),
+            VecBuilder.fill(maxVoltage, maxVoltage));
   }
 
 }

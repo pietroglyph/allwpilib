@@ -146,11 +146,9 @@ public class LinearQuadraticRegulator<S extends Num, I extends Num,
     this.m_A = A;
     this.m_B = B;
 
-    Matrix<S, S> discA = new Matrix<>(new SimpleMatrix(states.getNum(), states.getNum()));
-    Matrix<S, I> discB = new Matrix<>(new SimpleMatrix(states.getNum(), inputs.getNum()));
-    StateSpaceUtils.discretizeAB(states, inputs, A, B, dtSeconds, discA, discB);
-    this.m_discA = discA;
-    this.m_discB = discB;
+    var discABpair = StateSpaceUtils.discretizeAB(states, inputs, A, B, dtSeconds);
+    this.m_discA = discABpair.getFirst();
+    this.m_discB = discABpair.getSecond();
 
     m_K = k;
 
