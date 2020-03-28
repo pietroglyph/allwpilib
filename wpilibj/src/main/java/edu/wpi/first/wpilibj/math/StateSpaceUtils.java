@@ -260,16 +260,6 @@ public final class StateSpaceUtils {
   }
 
   /**
-   * The identy of a square matrix.
-   *
-   * @param rows the number of rows (and columns)
-   * @return the identiy matrix, rows x rows.
-   */
-  private static SimpleMatrix eye(int rows) {
-    return SimpleMatrix.identity(rows);
-  }
-
-  /**
    * Returns true if (A, B) is a stabilizable pair.
    *
    * <p>(A,B) is stabilizable if and only if the uncontrollable eigenvalues of A, if

@@ -247,14 +247,8 @@ public class LinearQuadraticRegulator<S extends Num, I extends Num,
    */
   @SuppressWarnings("ParameterName")
   public void update(Matrix<S, N1> x, Matrix<S, N1> nextR) {
-    if (m_enabled) {
-      Matrix<I, N1> feedBack = m_K.times(m_r.minus(x));
-      m_uff = new Matrix<>(SimpleMatrixUtils.householderQrDecompose(m_discB.getStorage())
-              .solve((nextR.minus(m_discA.times(m_r))).getStorage()));
-
-      m_u = feedBack.plus(m_uff);
-      m_r = nextR;
-    }
+    update(x);
+    m_r = nextR;
   }
-
 }
+

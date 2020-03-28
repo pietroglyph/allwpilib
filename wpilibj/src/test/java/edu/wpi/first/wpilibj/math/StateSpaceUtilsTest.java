@@ -74,4 +74,59 @@ public class StateSpaceUtilsTest {
     assertTrue(StateSpaceUtils.isStabilizable(A, B));
   }
 
+  @Test
+  public void testMakeWhiteNoiseVector() {
+    // TODO
+  }
+
+  @Test
+  public void testDiscretizeProcessNoiseCov() {
+    // TODO
+  }
+
+  @Test
+  public void testDiscretizeA() {
+    // TODO
+  }
+
+  @Test
+  public void testDiscretizeAQTaylor() {
+    // TODO
+  }
+
+  @Test
+  public void testDiscretizeR() {
+    // TODO
+  }
+
+  @Test
+  public void testDiscretizeMeasurementNoiseCov() {
+    // TODO
+  }
+
+  @Test
+  public void testDiscretizeAB() {
+    // TODO
+  }
+
+  @Test
+  public void testMakeEye() {
+    // TODO
+  }
+
+  @Test
+  public void testMatrixExp() {
+    // TODO
+  }
+
+  @Test
+  public void testSimpleMatrixExp() {
+    // TODO
+  }
+
+  @Test
+  public void testPoseToVector() {
+    // TODO
+  }
+
 }
