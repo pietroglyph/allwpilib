@@ -49,17 +49,12 @@ public class KalmanFilter<S extends Num, I extends Num,
   /**
    * Continuous process noise covariance matrix.
    */
-  private Matrix<S, S> m_contQ;
+  private final Matrix<S, S> m_contQ;
 
   /**
    * Continuous measurement noise covariance matrix.
    */
-  private Matrix<O, O> m_contR;
-
-  /**
-   * Discrete process noise covariance matrix.
-   */
-  private Matrix<S, S> m_discQ;
+  private final Matrix<O, O> m_contR;
 
   /**
    * Discrete measurement noise covariance matrix.
