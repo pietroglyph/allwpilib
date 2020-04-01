@@ -16,6 +16,7 @@ import edu.wpi.first.wpiutil.math.numbers.N2;
 import edu.wpi.first.wpiutil.math.numbers.N3;
 import edu.wpi.first.wpiutil.math.numbers.N5;
 import org.ejml.simple.SimpleMatrix;
+import org.junit.jupiter.api.Test;
 
 public class UnscentedKalmanFilterTest {
   @SuppressWarnings({"LocalVariableName", "ParameterName"})
@@ -61,7 +62,7 @@ public class UnscentedKalmanFilterTest {
     return new MatBuilder<>(Nat.N5(), Nat.N1()).fill(x.get(0, 0), x.get(1, 0), x.get(2, 0), x.get(3, 0), x.get(4, 0));
   }
 
-  //    @Test
+  @Test
   @SuppressWarnings("LocalVariableName")
   public void testInit() {
     UnscentedKalmanFilter<N5, N2, N3> observer = new UnscentedKalmanFilter<>(
@@ -69,7 +70,8 @@ public class UnscentedKalmanFilterTest {
             UnscentedKalmanFilterTest::getDynamics,
             UnscentedKalmanFilterTest::getLocalMeasurementModel,
             new MatBuilder<>(Nat.N5(), Nat.N1()).fill(0.5, 0.5, 10.0, 1.0, 1.0),
-            new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.0001, 0.01, 0.01));
+            new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.0001, 0.01, 0.01),
+            0.02);
 
     var u = new MatBuilder<>(Nat.N2(), Nat.N1()).fill(12.0, 12.0);
     observer.predict(u, 0.00505);
