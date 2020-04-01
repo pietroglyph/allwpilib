@@ -1,7 +1,5 @@
 package edu.wpi.first.wpilibj.system;
 
-import org.ejml.simple.SimpleMatrix;
-
 import edu.wpi.first.wpilibj.math.StateSpaceUtil;
 import edu.wpi.first.wpilibj.system.plant.DCMotor;
 import edu.wpi.first.wpiutil.math.MatBuilder;
@@ -13,6 +11,7 @@ import edu.wpi.first.wpiutil.math.Num;
 import edu.wpi.first.wpiutil.math.VecBuilder;
 import edu.wpi.first.wpiutil.math.numbers.N1;
 import edu.wpi.first.wpiutil.math.numbers.N2;
+import org.ejml.simple.SimpleMatrix;
 
 @SuppressWarnings("PMD.TooManyMethods")
 public class LinearSystem<S extends Num, I extends Num,
@@ -475,6 +474,47 @@ public class LinearSystem<S extends Num, I extends Num,
             MatrixUtils.zeros(Nat.N1()),
             VecBuilder.fill(-maxVoltage),
             VecBuilder.fill(maxVoltage));
+  }
+
+  /**
+   * Create a state-space model of a differential drive drivetrain.
+   *
+   * @param motor            the gearbox representing the motors driving the drivetrain.
+   * @param massKg           the mass of the robot.
+   * @param rMeters          the radius of the wheels in meters.
+   * @param rbMeters         the radius of the base (half the track width) in meters.
+   * @param JKgMetersSquared the moment of inertia of the robot.
+   * @param G                the gearing reduction as output over input.
+   * @param maxVoltageVolts  the maximum voltage. Usually 12v. Must be positive.
+   * @return A LinearSystem representing a differential drivetrain.
+   */
+  @SuppressWarnings({"LocalVariableName", "ParameterName"})
+  public static LinearSystem<N2, N2, N2> createDrivetrainVelocitySystem(DCMotor motor, double massKg,
+                                                         double rMeters, double rbMeters,
+                                                         double JKgMetersSquared, double G,
+                                                         double maxVoltageVolts) {
+    var C1 =
+            -(G * G) * motor.m_KtNMPerAmp / (motor.m_KvRadPerSecPerVolt * motor.m_rOhms * rMeters * rMeters);
+    var C2 = G * motor.m_KtNMPerAmp / (motor.m_rOhms * rMeters);
+
+    final double C3 = 1 / massKg + rbMeters * rbMeters / JKgMetersSquared;
+    final double C4 = 1 / massKg - rbMeters * rbMeters / JKgMetersSquared;
+    var A = new MatBuilder<>(Nat.N2(), Nat.N2()).fill(
+            C3 * C1,
+            C4 * C1,
+            C4 * C1,
+            C3 * C1);
+    var B = new MatBuilder<>(Nat.N2(), Nat.N2()).fill(
+            C3 * C2,
+            C4 * C2,
+            C4 * C2,
+            C3 * C2);
+    var C = new MatBuilder<>(Nat.N2(), Nat.N2()).fill(1.0, 0.0, 0.0, 1.0);
+    var D = new MatBuilder<>(Nat.N2(), Nat.N2()).fill(0.0, 0.0, 0.0, 0.0);
+    var uMin = VecBuilder.fill(-maxVoltageVolts, -maxVoltageVolts);
+    var uMax = VecBuilder.fill(maxVoltageVolts, maxVoltageVolts);
+
+    return new LinearSystem<>(Nat.N2(), Nat.N2(), Nat.N2(), A, B, C, D, uMin, uMax);
   }
 
   /**
