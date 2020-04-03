@@ -7,14 +7,14 @@
 
 package edu.wpi.first.wpilibj.controller;
 
+import org.ejml.simple.SimpleMatrix;
+
 import edu.wpi.first.wpilibj.math.StateSpaceUtil;
 import edu.wpi.first.wpilibj.system.LinearSystem;
 import edu.wpi.first.wpiutil.math.Drake;
 import edu.wpi.first.wpiutil.math.Matrix;
 import edu.wpi.first.wpiutil.math.Num;
-import edu.wpi.first.wpiutil.math.SimpleMatrixUtils;
 import edu.wpi.first.wpiutil.math.numbers.N1;
-import org.ejml.simple.SimpleMatrix;
 
 /**
  * Contains the controller coefficients and logic for a linear-quadratic

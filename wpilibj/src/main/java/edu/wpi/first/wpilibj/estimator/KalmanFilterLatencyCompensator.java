@@ -1,6 +1,7 @@
 package edu.wpi.first.wpilibj.estimator;
 
 import java.util.Map;
+import java.util.NavigableMap;
 import java.util.TreeMap;
 
 import edu.wpi.first.wpiutil.math.Matrix;
@@ -10,7 +11,7 @@ import edu.wpi.first.wpiutil.math.numbers.N1;
 class KalmanFilterLatencyCompensator<S extends Num, I extends Num, O extends Num> {
   private static final int k_maxPastObserverStates = 300;
 
-  private final TreeMap<Double, ObserverSnapshot> m_pastObserverSnapshots;
+  private final NavigableMap<Double, ObserverSnapshot> m_pastObserverSnapshots;
 
   KalmanFilterLatencyCompensator() {
     m_pastObserverSnapshots = new TreeMap<>();

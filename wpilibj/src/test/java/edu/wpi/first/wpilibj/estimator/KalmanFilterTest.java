@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import edu.wpi.first.wpiutil.math.numbers.N1;
 import org.ejml.simple.SimpleMatrix;
 import org.junit.jupiter.api.Test;
 
@@ -76,6 +77,7 @@ public class KalmanFilterTest {
   }
 
   @Test
+  @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
   public void testSwerveKFStationary() {
 
     var random = new Random();
@@ -94,9 +96,10 @@ public class KalmanFilterTest {
     List<Double> xhatsY = new ArrayList<>();
     List<Double> measurementsY = new ArrayList<>();
 
+    Matrix<N3, N1> measurement;
     for (int i = 0; i < 100; i++) {
       // the robot is at [0, 0, 0] so we just park here
-      var measurement = new MatBuilder<>(Nat.N3(), Nat.N1()).fill(
+      measurement = new MatBuilder<>(Nat.N3(), Nat.N1()).fill(
               random.nextGaussian(), random.nextGaussian(), random.nextGaussian());
       filter.correct(new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.0, 0.0, 0.0), measurement);
 
@@ -122,6 +125,7 @@ public class KalmanFilterTest {
   }
 
   @Test
+  @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
   public void testSwerveKFMovingWithoutAccelerating() {
 
     var random = new Random();
@@ -176,7 +180,7 @@ public class KalmanFilterTest {
   }
 
   @Test
-  @SuppressWarnings("LocalVariableName")
+  @SuppressWarnings({"LocalVariableName", "PMD.AvoidInstantiatingObjectsInLoops"})
   public void testSwerveKFMovingOverTrajectory() {
 
     var random = new Random();
