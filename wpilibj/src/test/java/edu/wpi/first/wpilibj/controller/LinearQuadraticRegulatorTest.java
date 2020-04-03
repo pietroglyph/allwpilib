@@ -97,12 +97,20 @@ public class LinearQuadraticRegulatorTest {
   @SuppressWarnings("LocalVariableName")
   public void testLQROnArm() {
 
+    var motors = DCMotor.getVex775Pro(2);
+
+    var m = 4.0;
+    var r = 0.4;
+    var G = 100.0;
+
+    var plant = LinearSystem.createSingleJointedArmSystem(motors, 1d / 3d * m * r * r, G, 12.0);
+
     var qElms = VecBuilder.fill(0.01745, 0.08726);
     var rElms = VecBuilder.fill(12.0);
     var dt = 0.00505;
 
     var controller = new LinearQuadraticRegulator<>(
-            armPlant, qElms, rElms, dt);
+            plant, qElms, rElms, dt);
 
     var k = controller.getK();
 

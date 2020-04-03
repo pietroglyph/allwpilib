@@ -164,7 +164,7 @@ public class DCMotor {
             Units.rotationsPerMinuteToRadiansPerSecond(6380.0)), numMotors);
   }
 
-  private static DCMotor gearbox(DCMotor motor, int numMotors) {
+  private static DCMotor gearbox(DCMotor motor, double numMotors) {
     return new DCMotor(motor.m_nominalVoltageVolts, motor.m_stallTorqueNewtonMeters * numMotors,
             motor.m_stallCurrentAmps, motor.m_freeCurrentAmps, motor.m_freeSpeedRadPerSec);
   }
