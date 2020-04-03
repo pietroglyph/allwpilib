@@ -75,7 +75,7 @@ public class LinearSystemLoopTest {
   }
 
   @Test
-  @SuppressWarnings("LocalVariableName")
+  @SuppressWarnings({"LocalVariableName", "PMD.AvoidInstantiatingObjectsInLoops"})
   public void testStateSpaceEnabled() {
 
     m_loop.reset();
@@ -84,14 +84,14 @@ public class LinearSystemLoopTest {
     var constraints = new TrapezoidProfile.Constraints(4, 3);
     m_loop.setNextR(references);
 
+    TrapezoidProfile profile;
+    TrapezoidProfile.State state;
     for (int i = 0; i < 1000; i++) {
-
-      // trapezoidal profile gang
-      var profile = new TrapezoidProfile(
+      profile = new TrapezoidProfile(
               constraints, new TrapezoidProfile.State(m_loop.getXHat(0), m_loop.getXHat(1)),
               new TrapezoidProfile.State(references.get(0, 0), references.get(1, 0))
       );
-      var state = profile.calculate(kDt);
+      state = profile.calculate(kDt);
       m_loop.setNextR(new MatBuilder<>(Nat.N2(), Nat.N1()).fill(state.position, state.velocity));
 
       updateTwoState(m_loop, (random.nextGaussian()) * kPositionStddev);

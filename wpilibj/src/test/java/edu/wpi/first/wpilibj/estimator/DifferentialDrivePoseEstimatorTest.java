@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
+import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import org.junit.jupiter.api.Test;
 
 import edu.wpi.first.wpilibj.geometry.Pose2d;
@@ -26,7 +28,7 @@ import edu.wpi.first.wpiutil.math.Nat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class DifferentialDrivePoseEstimatorTest {
-  @SuppressWarnings("LocalVariableName")
+  @SuppressWarnings({"LocalVariableName", "PMD.AvoidInstantiatingObjectsInLoops"})
   @Test
   public void testAccuracy() {
     var estimator = new DifferentialDrivePoseEstimator(new Rotation2d(), new Pose2d(),
@@ -61,9 +63,11 @@ public class DifferentialDrivePoseEstimatorTest {
 
     double maxError = Double.NEGATIVE_INFINITY;
     double errorSum = 0;
+    Trajectory.State groundtruthState;
+    DifferentialDriveWheelSpeeds input;
     while (t <= traj.getTotalTimeSeconds()) {
-      var groundtruthState = traj.sample(t);
-      var input = kinematics.toWheelSpeeds(new ChassisSpeeds(
+      groundtruthState = traj.sample(t);
+      input = kinematics.toWheelSpeeds(new ChassisSpeeds(
               groundtruthState.velocityMetersPerSecond, 0.0,
               // ds/dt * dtheta/ds = dtheta/dt
               groundtruthState.velocityMetersPerSecond * groundtruthState.curvatureRadPerMeter

@@ -7,11 +7,11 @@
 
 package edu.wpi.first.wpilibj.system;
 
+import org.junit.jupiter.api.Test;
+
 import edu.wpi.first.wpilibj.system.plant.DCMotor;
 import edu.wpi.first.wpiutil.math.MatBuilder;
 import edu.wpi.first.wpiutil.math.Nat;
-import org.junit.jupiter.api.Test;
-
 
 import static org.ejml.EjmlUnitTests.assertEquals;
 

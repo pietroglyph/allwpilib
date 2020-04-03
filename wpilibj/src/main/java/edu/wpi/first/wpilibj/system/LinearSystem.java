@@ -7,6 +7,8 @@
 
 package edu.wpi.first.wpilibj.system;
 
+import org.ejml.simple.SimpleMatrix;
+
 import edu.wpi.first.wpilibj.math.StateSpaceUtil;
 import edu.wpi.first.wpilibj.system.plant.DCMotor;
 import edu.wpi.first.wpiutil.math.MatBuilder;
@@ -18,7 +20,6 @@ import edu.wpi.first.wpiutil.math.Num;
 import edu.wpi.first.wpiutil.math.VecBuilder;
 import edu.wpi.first.wpiutil.math.numbers.N1;
 import edu.wpi.first.wpiutil.math.numbers.N2;
-import org.ejml.simple.SimpleMatrix;
 
 @SuppressWarnings("PMD.TooManyMethods")
 public class LinearSystem<S extends Num, I extends Num,
@@ -496,12 +497,16 @@ public class LinearSystem<S extends Num, I extends Num,
    * @return A LinearSystem representing a differential drivetrain.
    */
   @SuppressWarnings({"LocalVariableName", "ParameterName"})
-  public static LinearSystem<N2, N2, N2> createDrivetrainVelocitySystem(DCMotor motor, double massKg,
-                                                         double rMeters, double rbMeters,
-                                                         double JKgMetersSquared, double G,
-                                                         double maxVoltageVolts) {
+  public static LinearSystem<N2, N2, N2> createDrivetrainVelocitySystem(DCMotor motor,
+                                                                        double massKg,
+                                                                        double rMeters,
+                                                                        double rbMeters,
+                                                                        double JKgMetersSquared,
+                                                                        double G,
+                                                                        double maxVoltageVolts) {
     var C1 =
-            -(G * G) * motor.m_KtNMPerAmp / (motor.m_KvRadPerSecPerVolt * motor.m_rOhms * rMeters * rMeters);
+            -(G * G) * motor.m_KtNMPerAmp
+                    / (motor.m_KvRadPerSecPerVolt * motor.m_rOhms * rMeters * rMeters);
     var C2 = G * motor.m_KtNMPerAmp / (motor.m_rOhms * rMeters);
 
     final double C3 = 1 / massKg + rbMeters * rbMeters / JKgMetersSquared;

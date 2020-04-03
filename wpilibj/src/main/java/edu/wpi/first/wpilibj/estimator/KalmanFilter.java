@@ -7,6 +7,8 @@
 
 package edu.wpi.first.wpilibj.estimator;
 
+import org.ejml.simple.SimpleMatrix;
+
 import edu.wpi.first.wpilibj.math.StateSpaceUtil;
 import edu.wpi.first.wpilibj.system.LinearSystem;
 import edu.wpi.first.wpiutil.math.Drake;
@@ -15,7 +17,6 @@ import edu.wpi.first.wpiutil.math.MatrixUtils;
 import edu.wpi.first.wpiutil.math.Nat;
 import edu.wpi.first.wpiutil.math.Num;
 import edu.wpi.first.wpiutil.math.numbers.N1;
-import org.ejml.simple.SimpleMatrix;
 
 /**
  * Luenberger observers combine predictions from a model and measurements to
@@ -111,6 +112,7 @@ public class KalmanFilter<S extends Num, I extends Num,
    *
    * @return the error covariance matrix P.
    */
+  @Override
   public Matrix<S, S> getP() {
     return m_P;
   }
@@ -153,6 +155,7 @@ public class KalmanFilter<S extends Num, I extends Num,
    * @param row   Row of x-hat.
    * @param value Value for element of x-hat.
    */
+  @Override
   public void setXhat(int row, double value) {
     m_plant.setX(row, value);
   }
