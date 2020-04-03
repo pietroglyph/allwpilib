@@ -1,3 +1,10 @@
+/*----------------------------------------------------------------------------*/
+/* Copyright (c) 2020 FIRST. All Rights Reserved.                             */
+/* Open Source Software - may be modified and shared by FRC teams. The code   */
+/* must be accompanied by the FIRST BSD license file in the root directory of */
+/* the project.                                                               */
+/*----------------------------------------------------------------------------*/
+
 package edu.wpi.first.wpilibj.system.plant;
 
 import edu.wpi.first.wpilibj.util.Units;
@@ -6,7 +13,6 @@ import edu.wpi.first.wpilibj.util.Units;
  * Holds the constants for a DC motor.
  */
 public class DCMotor {
-
   public final double m_nominalVoltageVolts;
   public final double m_stallTorqueNewtonMeters;
   public final double m_stallCurrentAmps;
