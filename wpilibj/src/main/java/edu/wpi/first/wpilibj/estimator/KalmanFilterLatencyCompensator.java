@@ -1,10 +1,3 @@
-/*----------------------------------------------------------------------------*/
-/* Copyright (c) 2020 FIRST. All Rights Reserved.                             */
-/* Open Source Software - may be modified and shared by FRC teams. The code   */
-/* must be accompanied by the FIRST BSD license file in the root directory of */
-/* the project.                                                               */
-/*----------------------------------------------------------------------------*/
-
 package edu.wpi.first.wpilibj.estimator;
 
 import java.util.Map;
@@ -78,12 +71,8 @@ class KalmanFilterLatencyCompensator<S extends Num, I extends Num, O extends Num
         // Note that we correct the observer with inputs closest in time to the measurement
         // This makes the assumption that the dt is small enough that the difference between the
         // measurement time and the time that the inputs were captured at is very small
-        observer.predict(st.inputs, entry.getKey() - lastTimestamp);
         observer.correct(st.inputs, y);
-      } else {
-        observer.predict(st.inputs, entry.getKey() - lastTimestamp);
       }
-      lastTimestamp = entry.getKey();
 
       newSnapshots.put(entry.getKey(), new ObserverSnapshot(observer, st.inputs));
 
