@@ -279,7 +279,7 @@ public class ExtendedKalmanFilter<S extends Num, I extends Num, O extends Num>
     // K = (S^T.solve(CP^T))^T
     //
     // Now we have the optimal Kalman gain
-    final var K = new Matrix<S, R>(SimpleMatrixUtils.lltDecompose(S.transpose().getStorage())
+    final var K = new Matrix<S, R>(S.getStorage().transpose()
             .solve(C.times(m_P.transpose()).getStorage()).transpose());
 
     m_xHat = m_xHat.plus(K.times(y.minus(h.apply(m_xHat, u))));
