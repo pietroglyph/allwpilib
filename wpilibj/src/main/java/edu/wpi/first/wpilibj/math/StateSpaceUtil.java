@@ -180,7 +180,7 @@ public final class StateSpaceUtil {
 
   /**
    * Returns a discretized version of the provided continuous measurement noise
-   * covariance matrix.
+   * covariance matrix. Note that dt=0.0 divides R by zero.
    *
    * @param <O>       Nat representing the number of outputs.
    * @param R         Continuous measurement noise covariance matrix.
