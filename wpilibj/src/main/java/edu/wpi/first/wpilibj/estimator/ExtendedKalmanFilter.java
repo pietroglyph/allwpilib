@@ -22,9 +22,6 @@ import edu.wpi.first.wpiutil.math.numbers.N1;
 
 public class ExtendedKalmanFilter<S extends Num, I extends Num, O extends Num>
         implements KalmanTypeFilter<S, I, O> {
-
-  private final boolean m_useRungeKutta;
-
   private final Nat<S> m_states;
   private final Nat<O> m_outputs;
 
@@ -52,8 +49,6 @@ public class ExtendedKalmanFilter<S extends Num, I extends Num, O extends Num>
    *                           the measurement vector.
    * @param stateStdDevs       Standard deviations of model states.
    * @param measurementStdDevs Standard deviations of measurements.
-   * @param useRungeKutta      Whether or not to numerically integrate f; intended for situations
-   *                           where f is continous
    * @param dtSeconds          Nominal discretization timestep.
    */
   @SuppressWarnings("ParameterName")
@@ -65,11 +60,8 @@ public class ExtendedKalmanFilter<S extends Num, I extends Num, O extends Num>
           BiFunction<Matrix<S, N1>, Matrix<I, N1>, Matrix<O, N1>> h,
           Matrix<S, N1> stateStdDevs,
           Matrix<O, N1> measurementStdDevs,
-          boolean useRungeKutta,
           double dtSeconds
   ) {
-    m_useRungeKutta = useRungeKutta;
-
     m_states = states;
     m_outputs = outputs;
 
@@ -218,11 +210,7 @@ public class ExtendedKalmanFilter<S extends Num, I extends Num, O extends Num>
     final var discA = discPair.getFirst();
     final var discQ = discPair.getSecond();
 
-    if (m_useRungeKutta) {
-      m_xHat = RungeKutta.rungeKutta(f, m_xHat, u, dtSeconds);
-    } else {
-      m_xHat = f.apply(m_xHat, u);
-    }
+    m_xHat = RungeKutta.rungeKutta(f, m_xHat, u, dtSeconds);
 
     m_P = discA.times(m_P).times(discA.transpose()).plus(discQ);
   }
