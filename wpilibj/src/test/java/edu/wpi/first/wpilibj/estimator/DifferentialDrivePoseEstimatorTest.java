@@ -32,6 +32,7 @@ public class DifferentialDrivePoseEstimatorTest {
   @Test
   public void testAccuracy() {
     var estimator = new DifferentialDrivePoseEstimator(new Rotation2d(), new Pose2d(),
+            new MatBuilder<>(Nat.N5(), Nat.N1()).fill(0.02, 0.02, 0.01, 0.02, 0.02),
             new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.02, 0.02, 0.01),
             new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.1, 0.1, 0.01));
 
@@ -61,6 +62,9 @@ public class DifferentialDrivePoseEstimatorTest {
     Pose2d lastVisionPose = null;
     double lastVisionUpdateTime = Double.NEGATIVE_INFINITY;
 
+    double distanceLeft = 0.0;
+    double distanceRight = 0.0;
+
     double maxError = Double.NEGATIVE_INFINITY;
     double errorSum = 0;
     Trajectory.State groundtruthState;
@@ -75,7 +79,7 @@ public class DifferentialDrivePoseEstimatorTest {
 
       if (lastVisionUpdateTime + visionUpdateRate + rand.nextGaussian() * 0.4 < t) {
         if (lastVisionPose != null) {
-          estimator.addVisionMeasurement(lastVisionPose, lastVisionUpdateTime);
+//          estimator.addVisionMeasurement(lastVisionPose, lastVisionUpdateTime);
         }
         var groundPose = groundtruthState.poseMeters;
         lastVisionPose = new Pose2d(
@@ -94,11 +98,16 @@ public class DifferentialDrivePoseEstimatorTest {
       input.leftMetersPerSecond += rand.nextGaussian() * 0.02;
       input.rightMetersPerSecond += rand.nextGaussian() * 0.02;
 
+      distanceLeft += input.leftMetersPerSecond * dt;
+      distanceRight += input.rightMetersPerSecond * dt;
+
       var rotNoise = new Rotation2d(rand.nextGaussian() * 0.01);
       var xHat = estimator.updateWithTime(
               t,
               groundtruthState.poseMeters.getRotation().plus(rotNoise),
-              input
+              input,
+              0, 0
+              //distanceLeft, distanceRight
       );
 
       double error =
@@ -116,12 +125,15 @@ public class DifferentialDrivePoseEstimatorTest {
       t += dt;
     }
 
+    System.out.println(errorSum / (traj.getTotalTimeSeconds() / dt));
+    System.out.println(maxError);
+
     assertEquals(
-            0.0, errorSum / (traj.getTotalTimeSeconds() / dt), 0.2,
+            0.0, errorSum / (traj.getTotalTimeSeconds() / dt), 0.03,
             "Incorrect mean error"
     );
     assertEquals(
-            0.0, maxError, 0.2,
+            0.0, maxError, 0.05,
             "Incorrect max error"
     );
 
