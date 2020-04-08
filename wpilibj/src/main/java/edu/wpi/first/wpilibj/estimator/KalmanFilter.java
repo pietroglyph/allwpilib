@@ -217,7 +217,7 @@ public class KalmanFilter<S extends Num, I extends Num,
   @SuppressWarnings("ParameterName")
   @Override
   public void correct(Matrix<I, N1> u, Matrix<O, N1> y) {
-    correct(u, y, m_plant.getC(), m_discR);
+    correct(u, y, m_plant.getC(), m_plant.getD(), m_discR);
   }
 
   /**
@@ -231,13 +231,14 @@ public class KalmanFilter<S extends Num, I extends Num,
    * @param u   Same control input used in the predict step.
    * @param y   Measurement vector.
    * @param C   Output matrix.
-   * @param r   Measurement noise covariance matrix.
+   * @param r   Discrete measurement noise covariance matrix.
    */
   @SuppressWarnings({"ParameterName", "LocalVariableName"})
   public <R extends Num> void correct(
           Matrix<I, N1> u,
           Matrix<R, N1> y,
           Matrix<R, S> C,
+          Matrix<R, I> D,
           Matrix<R, R> r) {
     var x = m_plant.getX();
     var S = C.times(m_P).times(C.transpose()).plus(r);
@@ -254,15 +255,11 @@ public class KalmanFilter<S extends Num, I extends Num,
     //
     // K^T = S^T.solve(CP^T)
     // K = (S^T.solve(CP^T))^T
+    Matrix<S, R> K = new Matrix<>(S.transpose().getStorage()
+            .solve((C.times(m_P.transpose())).getStorage()).transpose());
 
-    SimpleMatrix K = S.transpose().getStorage()
-            .solve((C.times(m_P.transpose())).getStorage()).transpose();
-
-    m_plant.setX(x.plus(new Matrix<>(K.mult((y.minus(new Matrix<>(C.times(x).getStorage()
-            .plus(m_plant.getD().times(u).getStorage())))).getStorage()))));
-
-    m_P = (MatrixUtils.eye(m_states).minus(new Matrix<>(K.mult(C.getStorage())))).times(m_P);
-
+    m_plant.setX(x.plus(K.times(y.minus(C.times(x).plus(D.times(u))))));
+    m_P = MatrixUtils.eye(m_states).minus(K.times(C)).times(m_P);
   }
 
 }
