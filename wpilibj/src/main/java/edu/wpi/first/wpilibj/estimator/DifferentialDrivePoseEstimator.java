@@ -7,6 +7,8 @@
 
 package edu.wpi.first.wpilibj.estimator;
 
+import java.util.function.BiConsumer;
+
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
@@ -19,7 +21,6 @@ import edu.wpi.first.wpiutil.math.VecBuilder;
 import edu.wpi.first.wpiutil.math.numbers.N1;
 import edu.wpi.first.wpiutil.math.numbers.N3;
 import edu.wpi.first.wpiutil.math.numbers.N5;
-import org.ejml.simple.SimpleMatrix;
 
 /**
  * This class wraps an Extended Kalman Filter to fuse latency-compensated vision
@@ -53,7 +54,7 @@ import org.ejml.simple.SimpleMatrix;
  */
 public class DifferentialDrivePoseEstimator {
   private final UnscentedKalmanFilter<N5, N3, N3> m_observer;
-  private final Matrix<N3, N1> m_encoderMeasurementStdDevs;
+  private final BiConsumer<Matrix<N3, N1>, Matrix<N3, N1>> m_visionCorrect;
   private final KalmanFilterLatencyCompensator<N5, N3, N3> m_latencyCompensator;
 
   private final double m_nominalDt; // Seconds
@@ -65,42 +66,44 @@ public class DifferentialDrivePoseEstimator {
   /**
    * Constructs a DifferentialDrivePoseEstimator.
    *
-   * @param gyroAngle                 The current gyro angle.
-   * @param initialPoseMeters         The starting pose estimate.
-   * @param stateStdDevs              Standard deviations of model states. Increase these numbers to
-   *                                  trust your wheel velocities less.
-   * @param encoderMeasurementStdDevs Standard deviations of the encoder measurements. Increase
-   *                                  these numbers to trust encoders less.
-   * @param visionMeasurementStdDevs  Standard deviations of the encoder measurements. Increase
-   *                                  these numbers to trust vision less.
+   * @param gyroAngle                The current gyro angle.
+   * @param initialPoseMeters        The starting pose estimate.
+   * @param stateStdDevs             Standard deviations of model states. Increase these numbers to
+   *                                 trust your wheel and gyro velocities less.
+   * @param localMeasurementStdDevs  Standard deviations of the encoder and gyro measurements.
+   *                                 Increase these numbers to trust encoder distances and gyro
+   *                                 angle less.
+   * @param visionMeasurementStdDevs Standard deviations of the encoder measurements. Increase
+   *                                 these numbers to trust vision less.
    */
   public DifferentialDrivePoseEstimator(
           Rotation2d gyroAngle, Pose2d initialPoseMeters,
           Matrix<N5, N1> stateStdDevs,
-          Matrix<N3, N1> encoderMeasurementStdDevs, Matrix<N3, N1> visionMeasurementStdDevs
+          Matrix<N3, N1> localMeasurementStdDevs, Matrix<N3, N1> visionMeasurementStdDevs
   ) {
     this(gyroAngle, initialPoseMeters,
-            stateStdDevs, encoderMeasurementStdDevs, visionMeasurementStdDevs, 0.02);
+            stateStdDevs, localMeasurementStdDevs, visionMeasurementStdDevs, 0.02);
   }
 
   /**
    * Constructs a DifferentialDrivePoseEstimator.
    *
-   * @param gyroAngle                 The current gyro angle.
-   * @param initialPoseMeters         The starting pose estimate.
-   * @param stateStdDevs              Standard deviations of model states. Increase these numbers to
-   *                                  trust your wheel velocities less.
-   * @param encoderMeasurementStdDevs Standard deviations of the encoder measurements. Increase
-   *                                  these numbers to trust encoders less.
-   * @param visionMeasurementStdDevs  Standard deviations of the encoder measurements. Increase
-   *                                  these numbers to trust vision less.
-   * @param nominalDtSeconds          The time in seconds between each robot loop.
+   * @param gyroAngle                The current gyro angle.
+   * @param initialPoseMeters        The starting pose estimate.
+   * @param stateStdDevs             Standard deviations of model states. Increase these numbers to
+   *                                 trust your wheel and gyro velocities less.
+   * @param localMeasurementStdDevs  Standard deviations of the encoder and gyro measurements.
+   *                                 Increase these numbers to trust encoder distances and gyro
+   *                                 angle less.
+   * @param visionMeasurementStdDevs Standard deviations of the encoder measurements. Increase
+   *                                 these numbers to trust vision less.
+   * @param nominalDtSeconds         The time in seconds between each robot loop.
    */
   @SuppressWarnings("ParameterName")
   public DifferentialDrivePoseEstimator(
           Rotation2d gyroAngle, Pose2d initialPoseMeters,
           Matrix<N5, N1> stateStdDevs,
-          Matrix<N3, N1> encoderMeasurementStdDevs, Matrix<N3, N1> visionMeasurementStdDevs,
+          Matrix<N3, N1> localMeasurementStdDevs, Matrix<N3, N1> visionMeasurementStdDevs,
           double nominalDtSeconds
   ) {
     m_nominalDt = nominalDtSeconds;
@@ -108,12 +111,19 @@ public class DifferentialDrivePoseEstimator {
     m_observer = new UnscentedKalmanFilter<>(
         Nat.N5(), Nat.N3(), Nat.N3(),
         this::f,
-        (x, u) -> new Matrix<>(x.getStorage().extractMatrix(0, 2, 0, 0)),
-        stateStdDevs, visionMeasurementStdDevs,
+        (x, u) -> VecBuilder.fill(x.get(3, 0), x.get(4, 0), x.get(2, 0)),
+        stateStdDevs, localMeasurementStdDevs,
         m_nominalDt
     );
-    m_encoderMeasurementStdDevs = encoderMeasurementStdDevs;
     m_latencyCompensator = new KalmanFilterLatencyCompensator<>();
+
+    var visionContR = StateSpaceUtil.makeCovMatrix(Nat.N3(), visionMeasurementStdDevs);
+    var visionDiscR = StateSpaceUtil.discretizeR(visionContR, m_nominalDt);
+    m_visionCorrect = (u, y) -> m_observer.correct(
+        Nat.N3(), u, y,
+        (x, u_) -> new Matrix<>(x.getStorage().extractMatrix(0, 3, 0, 1)),
+        visionDiscR
+    );
 
     m_gyroOffset = initialPoseMeters.getRotation().minus(gyroAngle);
     m_previousAngle = initialPoseMeters.getRotation();
@@ -186,9 +196,12 @@ public class DifferentialDrivePoseEstimator {
    *                              this case.
    */
   public void addVisionMeasurement(Pose2d visionRobotPoseMeters, double timestampSeconds) {
-    m_latencyCompensator.applyPastMeasurement(
+    m_latencyCompensator.applyPastGlobalMeasurement(
+            Nat.N3(),
             m_observer, m_nominalDt,
-            StateSpaceUtil.poseToVector(visionRobotPoseMeters), timestampSeconds
+            StateSpaceUtil.poseToVector(visionRobotPoseMeters),
+            m_visionCorrect,
+            timestampSeconds
     );
   }
 
@@ -251,13 +264,10 @@ public class DifferentialDrivePoseEstimator {
     );
     m_previousAngle = angle;
 
-    m_latencyCompensator.addObserverState(m_observer, u, currentTimeSeconds);
+    var localY = VecBuilder.fill(distanceLeftMeters, distanceRightMeters, angle.getRadians());
+    m_latencyCompensator.addObserverState(m_observer, u, localY, currentTimeSeconds);
     m_observer.predict(u, dt);
-    m_observer.correct(
-            Nat.N3(), u, VecBuilder.fill(distanceLeftMeters, distanceRightMeters, angle.getRadians()),
-            (x, u_) -> VecBuilder.fill(x.get(3, 0), x.get(4, 0), x.get(2, 0)),
-            StateSpaceUtil.discretizeR(StateSpaceUtil.makeCovMatrix(Nat.N3(), m_encoderMeasurementStdDevs), dt)
-    );
+    m_observer.correct(u, localY);
 
     return getEstimatedPosition();
   }

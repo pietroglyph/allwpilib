@@ -79,7 +79,7 @@ public class DifferentialDrivePoseEstimatorTest {
 
       if (lastVisionUpdateTime + visionUpdateRate + rand.nextGaussian() * 0.4 < t) {
         if (lastVisionPose != null) {
-//          estimator.addVisionMeasurement(lastVisionPose, lastVisionUpdateTime);
+          estimator.addVisionMeasurement(lastVisionPose, lastVisionUpdateTime);
         }
         var groundPose = groundtruthState.poseMeters;
         lastVisionPose = new Pose2d(
@@ -106,8 +106,7 @@ public class DifferentialDrivePoseEstimatorTest {
               t,
               groundtruthState.poseMeters.getRotation().plus(rotNoise),
               input,
-              0, 0
-              //distanceLeft, distanceRight
+              distanceLeft, distanceRight
       );
 
       double error =
