@@ -23,7 +23,8 @@ public class ExtendedKalmanFilter<S extends Num, I extends Num, O extends Num>
   @SuppressWarnings("MemberName")
   private final BiFunction<Matrix<S, N1>, Matrix<I, N1>, Matrix<O, N1>> m_h;
   private final Matrix<S, S> m_contQ;
-  private final Matrix<O, O> m_discR;
+  private final Matrix<O, O> m_contR;
+  private Matrix<O, O> m_discR;
   private final Matrix<S, S> m_initP;
   @SuppressWarnings("MemberName")
   private Matrix<S, N1> m_xHat;
@@ -64,7 +65,7 @@ public class ExtendedKalmanFilter<S extends Num, I extends Num, O extends Num>
     reset();
 
     m_contQ = StateSpaceUtils.makeCovMatrix(states, stateStdDevs);
-    var contR = StateSpaceUtils.makeCovMatrix(outputs, measurementStdDevs);
+    m_contR = StateSpaceUtils.makeCovMatrix(outputs, measurementStdDevs);
 
     final var contA = NumericalJacobian
             .numericalJacobianX(states, states, f, m_xHat, MatrixUtils.zeros(inputs));
@@ -75,7 +76,7 @@ public class ExtendedKalmanFilter<S extends Num, I extends Num, O extends Num>
     final var discA = discPair.getFirst();
     final var discQ = discPair.getSecond();
 
-    m_discR = StateSpaceUtils.discretizeR(contR, dtSeconds);
+    m_discR = StateSpaceUtils.discretizeR(m_contR, dtSeconds);
 
     if (StateSpaceUtils.isStabilizable(
             discA.transpose(), C.transpose()) && outputs.getNum() <= states.getNum()) {
@@ -206,6 +207,7 @@ public class ExtendedKalmanFilter<S extends Num, I extends Num, O extends Num>
     m_xHat = RungeKutta.rungeKutta(f, m_xHat, u, dtSeconds);
 
     m_P = discA.times(m_P).times(discA.transpose()).plus(discQ);
+    m_discR = StateSpaceUtils.discretizeR(m_contR, dtSeconds);
   }
 
   /**
