@@ -30,7 +30,7 @@ import edu.wpi.first.wpiutil.math.numbers.N1;
  * the model.
  *
  * <p>For more on the underlying math, read
- * https://file.tavsys.net/control/controls-engineering-in-frc.pdf section 9.
+ * https://file.tavsys.net/control/controls-engineering-in-frc.pdf chapter 9.
  */
 public class KalmanFilter<S extends Num, I extends Num,
         O extends Num> implements KalmanTypeFilter<S, I, O> {
