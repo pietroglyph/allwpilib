@@ -19,22 +19,18 @@ import edu.wpi.first.wpiutil.math.Num;
 import edu.wpi.first.wpiutil.math.numbers.N1;
 
 /**
- * Luenberger observers combine predictions from a model and measurements to
- * give an estimate of the true system state.
+ * A Kalman filter combines predictions from a model and measurements to give an estimate of the true
+ * system state. This is useful because many states cannot be measured directly as a result of
+ * sensor noise, or because the state is "hidden".
  *
- * <p>Luenberger observers use an L gain matrix to determine whether to trust the
- * model or measurements more. Kalman filter theory uses statistics to compute
- * an optimal L gain (alternatively called the Kalman gain, K) which minimizes
- * the sum of squares error in the state estimate.
- *
- * <p>Luenberger observers run the prediction and correction steps simultaneously
- * while Kalman filters run them sequentially. To implement a discrete-time
- * Kalman filter as a Luenberger observer, use the following mapping:
- * <pre>C = H, L = A * K</pre>
- * (H is the measurement matrix).
+ * <p>Kalman filters use a K gain matrix to determine whether to trust the model or measurements
+ * more. Kalman filter theory uses statistics to compute an optimal K gain which minimizes the sum
+ * of squares error in the state estimate. This K gain is used to correct the state estimate by
+ * some amount of the difference between the actual measurements and the measurements predicted by
+ * the model.
  *
  * <p>For more on the underlying math, read
- * https://file.tavsys.net/control/controls-engineering-in-frc.pdf.
+ * https://file.tavsys.net/control/controls-engineering-in-frc.pdf section 9.
  */
 public class KalmanFilter<S extends Num, I extends Num,
         O extends Num> implements KalmanTypeFilter<S, I, O> {
