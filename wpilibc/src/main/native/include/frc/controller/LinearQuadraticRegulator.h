@@ -85,10 +85,9 @@ class LinearQuadraticRegulator {
     LinearQuadraticRegulator(const Eigen::Matrix<double, States, States>& A,
                              const Eigen::Matrix<double, States, Inputs>& B,
                              const std::array<double, States>& Qelems,
-                             const double rho,
                              const std::array<double, Inputs>& Relems,
                              units::second_t dt)
-      : LinearQuadraticRegulator(plant.A(), plant.B(), Qelems, 1.0, Relems, dt) {}
+      : LinearQuadraticRegulator(A, B, Qelems, 1.0, Relems, dt) {}
 
   /**
    * Constructs a controller with the given coefficients and plant.
