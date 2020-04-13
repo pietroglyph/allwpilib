@@ -200,6 +200,13 @@ public class LinearQuadraticRegulator<S extends Num, I extends Num,
   }
 
   /**
+   * Returns an element of the control input vector u.
+   */
+  public double getU(int row) {
+    return m_u.get(row, 0);
+  }
+
+  /**
    * Returns the feedforward component of the control input vector u.
    */
   public Matrix<I, N1> getUff() {

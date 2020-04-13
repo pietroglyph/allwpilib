@@ -33,10 +33,8 @@ public class Robot extends TimedRobot {
   private static final int kJoystickPort = 0;
   private static final double kSpinupRadPerSec = 500.0 / 60.0 * 2.0 * Math.PI; // Convert 500RPM to
 
-  private static final double flywheelMomentOfInertia = 0.00032; // kg * m^2
-  private static final double flywheelGearing = 1.0; // reduction between motors and encoder,
-  // as output over input. If the flywheel spins slower than the motors, this number should be
-  // greater than one.
+  private static final double flywheelKv = 0.023; // kv, volts per radian per second
+  private static final double flywheelKa = 0.001; // ka, volts per radian per second squared
 
   /*
   The plant holds a state-space model of our flywheel. In this system the states are as follows:
@@ -46,7 +44,7 @@ public class Robot extends TimedRobot {
   The kV and kA constants are found using the FRC Characterization toolsuite.
    */
   private final LinearSystem<N1, N1, N1> m_flywheelPlant = LinearSystem.identifyVelocitySystem(
-        0.023, 0.001, 12.0);
+        flywheelKv, flywheelKa, 12.0);
 
   // The observer fuses our encoder data and voltage inputs to reject noise.
   private final KalmanFilter<N1, N1, N1> m_observer = new KalmanFilter<>(
