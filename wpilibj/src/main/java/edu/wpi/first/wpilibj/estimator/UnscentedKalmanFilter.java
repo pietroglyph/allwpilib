@@ -11,14 +11,15 @@ import java.util.function.BiFunction;
 
 import org.ejml.simple.SimpleMatrix;
 
-import edu.wpi.first.wpilibj.math.StateSpaceUtils;
+import edu.wpi.first.wpilibj.math.Discretization;
+import edu.wpi.first.wpilibj.math.StateSpaceUtil;
 import edu.wpi.first.wpilibj.system.NumericalJacobian;
 import edu.wpi.first.wpilibj.system.RungeKutta;
 import edu.wpi.first.wpiutil.math.Matrix;
 import edu.wpi.first.wpiutil.math.MatrixUtils;
 import edu.wpi.first.wpiutil.math.Nat;
 import edu.wpi.first.wpiutil.math.Num;
-import edu.wpi.first.wpiutil.math.SimpleMatrixUtils;
+import edu.wpi.first.wpiutil.math.Pair;
 import edu.wpi.first.wpiutil.math.numbers.N1;
 
 /**
@@ -33,7 +34,7 @@ import edu.wpi.first.wpiutil.math.numbers.N1;
  */
 @SuppressWarnings("MemberName")
 public class UnscentedKalmanFilter<S extends Num, I extends Num,
-        O extends Num> implements KalmanTypeFilter<S, I, O> {
+      O extends Num> implements KalmanTypeFilter<S, I, O> {
 
   private final Nat<S> m_states;
   private final Nat<O> m_outputs;
@@ -76,10 +77,10 @@ public class UnscentedKalmanFilter<S extends Num, I extends Num,
     m_f = f;
     m_h = h;
 
-    m_contQ = StateSpaceUtils.makeCovMatrix(states, stateStdDevs);
-    m_contR = StateSpaceUtils.makeCovMatrix(outputs, measurementStdDevs);
+    m_contQ = StateSpaceUtil.makeCovarianceMatrix(states, stateStdDevs);
+    m_contR = StateSpaceUtil.makeCovarianceMatrix(outputs, measurementStdDevs);
 
-    m_discR = StateSpaceUtils.discretizeR(m_contR, nominalDtSeconds);
+    m_discR = Discretization.discretizeR(m_contR, nominalDtSeconds);
 
     m_pts = new MerweScaledSigmaPoints<>(states);
 
@@ -88,22 +89,22 @@ public class UnscentedKalmanFilter<S extends Num, I extends Num,
 
   @SuppressWarnings({"ParameterName", "LocalVariableName", "PMD.CyclomaticComplexity"})
   private static <S extends Num, C extends Num>
-        SimpleMatrixUtils.Pair<Matrix<C, N1>, Matrix<C, C>> unscentedTransform(
-          Nat<S> s, Nat<C> dim, Matrix<?, C> sigmas, Matrix<N1, ?> Wm, Matrix<N1, ?> Wc
+       Pair<Matrix<C, N1>, Matrix<C, C>> unscentedTransform(
+        Nat<S> s, Nat<C> dim, Matrix<?, C> sigmas, Matrix<N1, ?> Wm, Matrix<N1, ?> Wc
   ) {
     if (sigmas.getNumRows() != 2 * s.getNum() + 1 || sigmas.getNumCols() != dim.getNum()) {
       throw new IllegalArgumentException("Sigmas must be 2 * states + 1 by covDim! Got "
-              + sigmas.getNumRows() + " by " + sigmas.getNumCols());
+            + sigmas.getNumRows() + " by " + sigmas.getNumCols());
     }
 
     if (Wm.getNumRows() != 1 || Wm.getNumCols() != 2 * s.getNum() + 1) {
       throw new IllegalArgumentException("Wm must be 1 by 2 * states + 1! Got "
-              + Wm.getNumRows() + " by " + Wm.getNumCols());
+            + Wm.getNumRows() + " by " + Wm.getNumCols());
     }
 
     if (Wc.getNumRows() != 1 || Wc.getNumCols() != 2 * s.getNum() + 1) {
       throw new IllegalArgumentException("Wc must be 1 by 2 * states + 1! Got "
-              + Wc.getNumRows() + " by " + Wc.getNumCols());
+            + Wc.getNumRows() + " by " + Wc.getNumCols());
     }
 
     // New mean is just the sum of the sigmas * weight
@@ -117,9 +118,9 @@ public class UnscentedKalmanFilter<S extends Num, I extends Num,
       y.setRow(i, sigmas.extractRowVector(i).minus(x));
     }
     Matrix<C, C> P = y.transpose().times(changeBoundsUnchecked(Wc.diag()))
-            .times(changeBoundsUnchecked(y));
+          .times(changeBoundsUnchecked(y));
 
-    return new SimpleMatrixUtils.Pair<>(x.transpose(), P);
+    return new Pair<>(x.transpose(), P);
   }
 
   /**
@@ -219,23 +220,23 @@ public class UnscentedKalmanFilter<S extends Num, I extends Num,
   public void predict(Matrix<I, N1> u, double dtSeconds) {
     // Discretize Q before projecting mean and covariance forward
     Matrix<S, S> contA = NumericalJacobian.numericalJacobianX(m_states, m_states, m_f, m_xHat, u);
-    var discQ = StateSpaceUtils.discretizeAQTaylor(contA, m_contQ, dtSeconds).getSecond();
+    var discQ = Discretization.discretizeAQTaylor(contA, m_contQ, dtSeconds).getSecond();
 
     var sigmas = m_pts.sigmaPoints(m_xHat, m_P);
 
     for (int i = 0; i < m_pts.getNumSigmas(); ++i) {
       Matrix<S, N1> x =
-              sigmas.extractRowVector(i).transpose();
+            sigmas.extractRowVector(i).transpose();
 
       m_sigmasF.setRow(i, RungeKutta.rungeKutta(m_f, x, u, dtSeconds).transpose());
     }
 
     var ret = unscentedTransform(m_states, m_states,
-            m_sigmasF, m_pts.getWm(), m_pts.getWc());
+          m_sigmasF, m_pts.getWm(), m_pts.getWc());
 
     m_xHat = ret.getFirst();
     m_P = ret.getSecond().plus(discQ);
-    m_discR = StateSpaceUtils.discretizeR(m_contR, dtSeconds);
+    m_discR = Discretization.discretizeR(m_contR, dtSeconds);
   }
 
   /**
@@ -265,16 +266,17 @@ public class UnscentedKalmanFilter<S extends Num, I extends Num,
    */
   @SuppressWarnings({"ParameterName", "LocalVariableName"})
   public <R extends Num> void correct(
-          Nat<R> rows, Matrix<I, N1> u,
-          Matrix<R, N1> y,
-          BiFunction<Matrix<S, N1>, Matrix<I, N1>, Matrix<R, N1>> h,
-          Matrix<R, R> R) {
+        Nat<R> rows, Matrix<I, N1> u,
+        Matrix<R, N1> y,
+        BiFunction<Matrix<S, N1>, Matrix<I, N1>, Matrix<R, N1>> h,
+        Matrix<R, R> R) {
     // Transform sigma points into measurement space
-    Matrix<?, R> sigmasH = new Matrix<>(new SimpleMatrix(2 * m_states.getNum() + 1, rows.getNum()));
+    Matrix<?, R> sigmasH = new Matrix<>(new SimpleMatrix(2 * m_states.getNum() + 1,
+          rows.getNum()));
     for (int i = 0; i < m_pts.getNumSigmas(); i++) {
       Matrix<R, N1> hRet = h.apply(
-              m_sigmasF.extractRowVector(i).transpose(),
-              u
+            m_sigmasF.extractRowVector(i).transpose(),
+            u
       );
       sigmasH.setRow(i, hRet.transpose());
     }
@@ -288,11 +290,11 @@ public class UnscentedKalmanFilter<S extends Num, I extends Num,
     Matrix<S, R> Pxy = MatrixUtils.zeros(m_states, rows);
     for (int i = 0; i < m_pts.getNumSigmas(); i++) {
       var temp =
-              m_sigmasF.extractRowVector(i).minus(m_xHat.transpose())
-                      .transpose()
-                      .times(
-                              sigmasH.extractRowVector(i).minus(yHat.transpose())
-                      );
+            m_sigmasF.extractRowVector(i).minus(m_xHat.transpose())
+                  .transpose()
+                  .times(
+                        sigmasH.extractRowVector(i).minus(yHat.transpose())
+                  );
 
       Pxy = Pxy.plus(temp.times(m_pts.getWc(i)));
     }
@@ -303,9 +305,9 @@ public class UnscentedKalmanFilter<S extends Num, I extends Num,
     // K^T = P_y^T.solve(P_{xy}^T)
     // K = (P_y^T.solve(P_{xy}^T)^T
     Matrix<S, R> K = new Matrix<>(
-            Py.transpose().getStorage()
-                    .solve(Pxy.transpose().getStorage())
-                    .transpose()
+          Py.transpose().getStorage()
+                .solve(Pxy.transpose().getStorage())
+                .transpose()
     );
 
     m_xHat = m_xHat.plus(K.times(y.minus(yHat)));
