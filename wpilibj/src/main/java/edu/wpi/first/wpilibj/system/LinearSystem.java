@@ -9,7 +9,7 @@ package edu.wpi.first.wpilibj.system;
 
 import org.ejml.simple.SimpleMatrix;
 
-import edu.wpi.first.wpilibj.math.StateSpaceUtil;
+import edu.wpi.first.wpilibj.math.Discretization;
 import edu.wpi.first.wpilibj.system.plant.DCMotor;
 import edu.wpi.first.wpiutil.math.MatBuilder;
 import edu.wpi.first.wpiutil.math.MathUtil;
@@ -383,7 +383,7 @@ public class LinearSystem<S extends Num, I extends Num,
    */
   @SuppressWarnings("ParameterName")
   public Matrix<S, N1> calculateX(Matrix<S, N1> x, Matrix<I, N1> u, double dtSeconds) {
-    var discABpair = StateSpaceUtil.discretizeAB(m_A, m_B, dtSeconds);
+    var discABpair = Discretization.discretizeAB(m_A, m_B, dtSeconds);
 
     return (discABpair.getFirst().times(x)).plus(discABpair.getSecond().times(clampInput(u)));
   }
