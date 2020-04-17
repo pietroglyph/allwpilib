@@ -76,9 +76,6 @@ public class Robot extends TimedRobot {
   private final Joystick m_joystick = new Joystick(kJoystickPort); // A joystick to read the
   // trigger from.
 
-  // The last time that teleopPeriodic() was called. Used to calculate time since last update.
-  private double m_lastUpdateTime = 0.0;
-
   @Override
   public void robotInit() {
     // we go 2 pi radians per 4096 clicks.
@@ -91,17 +88,10 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
-    // set the update time to the current timestamp. This will allow our dt to be correctly
-    // calculated in teleopPeriodic.
-    m_lastUpdateTime = Timer.getFPGATimestamp();
   }
 
   @Override
   public void teleopPeriodic() {
-    // calculate the time since last update.
-    double currentTime = Timer.getFPGATimestamp();
-    final double dt = m_lastUpdateTime - currentTime;
-    m_lastUpdateTime = currentTime;
 
     // Sets the target speed of our flywheel. This is similar to setting the setpoint of a
     // PID controller.
@@ -118,7 +108,7 @@ public class Robot extends TimedRobot {
 
     // Update our LQR to generate new voltage commands and use the voltages to predict the next
     // state with out Kalman filter.
-    m_loop.predict(dt);
+    m_loop.predict(0.020);
 
     // send the new calculated voltage to the motors.
     // voltage = duty cycle * battery voltage, so

@@ -103,9 +103,6 @@ public class Robot extends TimedRobot {
   private final Joystick m_joystick = new Joystick(kJoystickPort); // A joystick to read the
   // trigger from.
 
-  // The last time that teleopPeriodic() was called. Used to calculate time since last update.
-  private double m_lastUpdateTime = 0.0;
-
   @Override
   public void robotInit() {
     // Circumference = pi * d, so distance per click = pi * d / counts
@@ -121,7 +118,6 @@ public class Robot extends TimedRobot {
     m_lastProfiledReference = new TrapezoidProfile.State(m_encoder.getDistance(),
           m_encoder.getRate());
   }
-
 
   @Override
   public void teleopPeriodic() {
@@ -139,7 +135,6 @@ public class Robot extends TimedRobot {
     m_lastProfiledReference = (new TrapezoidProfile(m_constraints, goal, m_lastProfiledReference))
           .calculate(0.020);
     m_loop.setNextR(m_lastProfiledReference.position, m_lastProfiledReference.velocity);
-
 
     // Correct our Kalman filter's state vector estimate with encoder data.
     m_loop.correct(VecBuilder.fill(m_encoder.getDistance()));
