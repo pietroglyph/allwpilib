@@ -237,7 +237,7 @@ public class LinearSystem<S extends Num, I extends Num,
    * @return The row-th element of the minimum control input vector u.
    */
   public double getUMin(int row) {
-    return m_uMin.get(row, 1);
+    return m_uMin.get(row, 0);
   }
 
   /**
@@ -256,7 +256,7 @@ public class LinearSystem<S extends Num, I extends Num,
    * @return The i=th element of the maximum control input vector u.
    */
   public double getUMax(int row) {
-    return m_uMax.get(row, 1);
+    return m_uMax.get(row, 0);
   }
 
   /**

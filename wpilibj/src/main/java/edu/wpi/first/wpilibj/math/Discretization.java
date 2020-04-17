@@ -4,7 +4,6 @@ import org.ejml.dense.row.CommonOps_DDRM;
 import org.ejml.simple.SimpleMatrix;
 
 import edu.wpi.first.wpiutil.math.Matrix;
-import edu.wpi.first.wpiutil.math.Nat;
 import edu.wpi.first.wpiutil.math.Num;
 import edu.wpi.first.wpiutil.math.Pair;
 import edu.wpi.first.wpiutil.math.SimpleMatrixUtils;
@@ -13,47 +12,6 @@ import edu.wpi.first.wpiutil.math.SimpleMatrixUtils;
 public final class Discretization {
   private Discretization() {
     // Utility class
-  }
-
-  /**
-   * Returns a discretized version of the provided continuous process noise
-   * covariance matrix.
-   *
-   * @param <S>       A Num representing the number of states.
-   * @param states    A Nat representing the number of states.
-   * @param A         The system matrix A.
-   * @param Q         Continuous process noise covariance matrix.
-   * @param dtSeconds Discretization timestep.
-   * @return The discretized process noise covariance matrix.
-   */
-  @SuppressWarnings("ParameterName")
-  public static <S extends Num> Matrix<S, S> discretizeProcessNoiseCov(
-        Nat<S> states, Matrix<S, S> A, Matrix<S, S> Q, double dtSeconds) {
-
-    var gain = new SimpleMatrix(0, 0);
-
-    // Set up the matrix M = [[-A, Q], [0, A.T]]
-    gain = gain.concatColumns(
-            (A.times(-1)).getStorage().concatRows(new SimpleMatrix(states.getNum(),
-                    states.getNum())), Q.getStorage().concatRows(A.transpose().getStorage())
-    );
-
-    var phi = SimpleMatrixUtils.expm(gain.scale(dtSeconds));
-
-    // Phi12 = phi[0:States,        States:2*States]
-    // Phi22 = phi[States:2*States, States:2*States]
-    Matrix<S, S> phi12 = new Matrix<>(new SimpleMatrix(states.getNum(), states.getNum()));
-    Matrix<S, S> phi22 = new Matrix<>(new SimpleMatrix(states.getNum(), states.getNum()));
-    CommonOps_DDRM.extract(
-            phi.getDDRM(), 0, states.getNum(), states.getNum(), states.getNum(),
-            phi12.getStorage().getDDRM()
-    );
-    CommonOps_DDRM.extract(
-            phi.getDDRM(), states.getNum(), states.getNum(), states.getNum(), states.getNum(),
-            phi22.getStorage().getDDRM()
-    );
-
-    return phi22.transpose().times(phi12);
   }
 
   /**
@@ -169,20 +127,6 @@ public final class Discretization {
    * @return Discretized version of the provided continuous measurement noise covariance matrix.
    */
   public static <O extends Num> Matrix<O, O> discretizeR(Matrix<O, O> R, double dtSeconds) {
-    return R.div(dtSeconds);
-  }
-
-  /**
-   * Returns a discretized version of the provided continuous measurement noise
-   * covariance matrix.
-   *
-   * @param <O>       Num representing the size of R.
-   * @param R         Continuous measurement noise covariance matrix.
-   * @param dtSeconds Discretization timestep.
-   * @return A discretized version of the provided continuous measurement noise covariance matrix.
-   */
-  public static <O extends Num> Matrix<O, O> discretizeMeasurementNoiseCov(
-          Matrix<O, O> R, double dtSeconds) {
     return R.div(dtSeconds);
   }
 

@@ -13,7 +13,6 @@ import java.util.Random;
 
 import org.ejml.simple.SimpleMatrix;
 import org.junit.jupiter.api.Test;
-import org.knowm.xchart.SwingWrapper;
 import org.knowm.xchart.XYChartBuilder;
 import org.knowm.xchart.style.Styler;
 import org.knowm.xchart.style.markers.SeriesMarkers;
@@ -31,6 +30,7 @@ import edu.wpi.first.wpiutil.math.VecBuilder;
 import edu.wpi.first.wpiutil.math.numbers.N1;
 import edu.wpi.first.wpiutil.math.numbers.N2;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
