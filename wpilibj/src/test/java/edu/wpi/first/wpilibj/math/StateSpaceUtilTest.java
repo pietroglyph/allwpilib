@@ -33,22 +33,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class StateSpaceUtilTest {
 
   @Test
-  public void testDiscretizeR() {
-    // TODO
-  }
-
-  @Test
-  public void testDiscretizeProcessNoiseCov() {
-    // TODO
-  }
-
-
-  @Test
-  public void testDiscretizeMeasurementNoiseCov() {
-    // TODO
-  }
-
-  @Test
   public void testCostArray() {
     var mat = StateSpaceUtil.makeCostMatrix(
           new MatBuilder<>(Nat.N3(), Nat.N1()).fill(1.0, 2.0, 3.0));
