@@ -40,8 +40,8 @@ public class Robot extends TimedRobot {
   private static final double kCarriageMass = 4.5; // kilograms
   private static final double kDrumRadius = 1.5 / 2.0 * 25.4 / 1000.0; // a 1.5in diameter drum
   // has a radius of 0.75in, or 0.019in.
-  private static final double kElevatorGearing = 1.0; // reduction between motors and encoder,
-  // as output over input. If the flywheel spins slower than the motors, this number should be
+  private static final double kElevatorGearing = 6.0; // reduction between motors and encoder,
+  // as output over input. If the elevator spins slower than the motors, this number should be
   // greater than one.
 
   private TrapezoidProfile.Constraints m_constraints = new TrapezoidProfile.Constraints(
