@@ -53,13 +53,13 @@ public class LinearSystem<S extends Num, I extends Num,
    * Minimum allowable input vector.
    */
   @SuppressWarnings("MemberName")
-  private final Matrix<I, N1> m_uMin;
+  private Matrix<I, N1> m_uMin;
 
   /**
    * Maximum allowable input vector.
    */
   @SuppressWarnings("MemberName")
-  private final Matrix<I, N1> m_uMax;
+  private Matrix<I, N1> m_uMax;
 
   /**
    * The states of the system represented as a Nat.
@@ -257,6 +257,24 @@ public class LinearSystem<S extends Num, I extends Num,
    */
   public double getUMax(int row) {
     return m_uMax.get(row, 0);
+  }
+
+  /**
+   * Set the minimum control effort uMin.
+   * @param uMin the new minimum control effort.
+   */
+  @SuppressWarnings("ParameterName")
+  public void setUMin(Matrix<I, N1> uMin) {
+    this.m_uMin = uMin;
+  }
+
+  /**
+   * Set the maximum control effort uMin.
+   * @param uMax the new maximum control effort.
+   */
+  @SuppressWarnings("ParameterName")
+  public void setUMax(Matrix<I, N1> uMax) {
+    this.m_uMax = uMax;
   }
 
   /**
