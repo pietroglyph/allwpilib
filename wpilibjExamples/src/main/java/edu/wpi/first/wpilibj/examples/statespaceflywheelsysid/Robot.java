@@ -5,7 +5,7 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package edu.wpi.first.wpilibj.examples.statespaceflywheelsysid.statespaceflywheel;
+package edu.wpi.first.wpilibj.examples.statespaceflywheelsysid;
 
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Joystick;
@@ -13,11 +13,11 @@ import edu.wpi.first.wpilibj.PWMVictorSPX;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.SpeedController;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.controller.LinearQuadraticRegulator;
 import edu.wpi.first.wpilibj.estimator.KalmanFilter;
 import edu.wpi.first.wpilibj.system.LinearSystem;
 import edu.wpi.first.wpilibj.system.LinearSystemLoop;
+import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpiutil.math.Nat;
 import edu.wpi.first.wpiutil.math.VecBuilder;
 import edu.wpi.first.wpiutil.math.numbers.N1;
@@ -31,7 +31,7 @@ public class Robot extends TimedRobot {
   private static final int kEncoderAChannel = 0;
   private static final int kEncoderBChannel = 1;
   private static final int kJoystickPort = 0;
-  private static final double kSpinupRadPerSec = 500.0 / 60.0 * 2.0 * Math.PI; // Convert 500RPM to
+  private static final double kSpinupRadPerSec = Units.rotationsPerMinuteToRadiansPerSecond(500.0);
 
   private static final double flywheelKv = 0.023; // kv, volts per radian per second
   private static final double flywheelKa = 0.001; // ka, volts per radian per second squared

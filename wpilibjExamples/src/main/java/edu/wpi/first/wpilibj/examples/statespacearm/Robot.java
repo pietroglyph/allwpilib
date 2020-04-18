@@ -40,12 +40,12 @@ public class Robot extends TimedRobot {
   private static final double kArmMOI = 1.2; // Moment of inertia of the arm, in kg * m^2. Can be
   // estimated with CAD. If finding this constant is difficult, LinearSystem.identifyPositionSystem
   // may be better.
-  private static final double kArmGearing = 1.0; // reduction between motors and encoder,
+  private static final double kArmGearing = 10.0; // reduction between motors and encoder,
   // as output over input. If the flywheel spins slower than the motors, this number should be
   // greater than one.
 
   private TrapezoidProfile.Constraints m_constraints = new TrapezoidProfile.Constraints(
-        Units.feetToMeters(3.0), Units.feetToMeters(6.0)); // Max elevator speed and acceleration.
+        Units.degreesToRadians(45), Units.degreesToRadians(90)); // Max arm speed and acceleration.
   private TrapezoidProfile.State m_lastProfiledReference = new TrapezoidProfile.State();
 
   /*

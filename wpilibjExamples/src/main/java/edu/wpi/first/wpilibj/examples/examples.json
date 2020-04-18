@@ -559,7 +559,11 @@
       "StateSpaceFlywheel",
       "Flywheel",
       "State Space",
-      "Model"
+      "Model",
+      "Digital",
+      "Sensors",
+      "Actuators",
+      "Joystick"
     ],
     "foldername": "statespaceflywheel",
     "gradlebase": "java",
@@ -574,9 +578,45 @@
       "FRC Characterization",
       "Flywheel",
       "Characterization",
-      "State space"
+      "State space",
+      "Digital",
+      "Sensors",
+      "Actuators",
+      "Joystick"
     ],
     "foldername": "statespaceflywheelsysid",
+    "gradlebase": "java",
+    "mainclass": "Main",
+    "commandversion": 2
+  },
+  {
+    "name": "StateSpaceElevator",
+    "description": "An example state-space controller demonstrating the use of FRC Characterization's System Identification for controlling a flywheel.",
+    "tags": [
+      "Elevator",
+      "State Space",
+      "Digital",
+      "Sensors",
+      "Actuators",
+      "Joystick"
+    ],
+    "foldername": "statespaceelevator",
+    "gradlebase": "java",
+    "mainclass": "Main",
+    "commandversion": 2
+  },
+  {
+    "name": "StateSpaceArm",
+    "description": "An example state-space controller demonstrating the use of FRC Characterization's System Identification for controlling a flywheel.",
+    "tags": [
+      "Arm",
+      "State space",
+      "Digital",
+      "Sensors",
+      "Actuators",
+      "Joystick"
+    ],
+    "foldername": "statespacearm",
     "gradlebase": "java",
     "mainclass": "Main",
     "commandversion": 2

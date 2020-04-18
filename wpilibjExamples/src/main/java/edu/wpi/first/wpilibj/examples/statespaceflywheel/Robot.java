@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.estimator.KalmanFilter;
 import edu.wpi.first.wpilibj.system.LinearSystem;
 import edu.wpi.first.wpilibj.system.LinearSystemLoop;
 import edu.wpi.first.wpilibj.system.plant.DCMotor;
+import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpiutil.math.Nat;
 import edu.wpi.first.wpiutil.math.VecBuilder;
 import edu.wpi.first.wpiutil.math.numbers.N1;
@@ -32,10 +33,9 @@ public class Robot extends TimedRobot {
   private static final int kEncoderAChannel = 0;
   private static final int kEncoderBChannel = 1;
   private static final int kJoystickPort = 0;
-  private static final double kSpinupRadPerSec = 500.0 / 60.0 * 2.0 * Math.PI; // 500RPM in
-  // radians per second
+  private static final double kSpinupRadPerSec = Units.rotationsPerMinuteToRadiansPerSecond(500.0);
 
-  private static final double flywheelMomentOfInertia = 0.00032; // kg * m^2
+  private static final double kFlywheelMomentOfInertia = 0.00032; // kg * m^2
   private static final double kFlywheelGearing = 1.0; // reduction between motors and encoder,
   // as output over input. If the flywheel spins slower than the motors, this number should be
   // greater than one.
@@ -48,7 +48,7 @@ public class Robot extends TimedRobot {
    */
   private final LinearSystem<N1, N1, N1> m_flywheelPlant = LinearSystem.createFlywheelSystem(
         DCMotor.getNEO(2),
-        flywheelMomentOfInertia,
+        kFlywheelMomentOfInertia,
         kFlywheelGearing,
         12.0);
 
@@ -56,7 +56,7 @@ public class Robot extends TimedRobot {
   private final KalmanFilter<N1, N1, N1> m_observer = new KalmanFilter<>(
         Nat.N1(), Nat.N1(),
         m_flywheelPlant,
-        VecBuilder.fill(3.0), // How accurate we think our moxdel is
+        VecBuilder.fill(3.0), // How accurate we think our model is
         VecBuilder.fill(0.01), // How accurate we think our encoder
         // data is
         0.020);
