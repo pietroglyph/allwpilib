@@ -7,12 +7,19 @@
 
 #pragma once
 
+#include <array>
+#include <functional>
 #include <utility>
 #include <vector>
 
+#include <Eigen/Core>
 #include <units/units.h>
 
 namespace frc {
+
+template <int N>
+using Vector = Eigen::Matrix<double, N, 1>;
+
 template <int States, int Inputs, int Outputs, typename KalmanFilterType>
 class KalmanFilterLatencyCompensator {
  public:
@@ -20,18 +27,24 @@ class KalmanFilterLatencyCompensator {
     Eigen::Matrix<double, States, 1> xHat;
     Eigen::Matrix<double, States, States> errorCovariances;
     Eigen::Matrix<double, Inputs, 1> inputs;
+    Eigen::Matrix<double, Outputs, 1> localMeasurements;
 
     ObserverSnapshot(const KalmanFilterType& observer,
-                     const Eigen::Matrix<double, Inputs, 1>& u)
-        : xHat(observer.Xhat()), errorCovariances(observer.P()), inputs(u) {}
+                     const Eigen::Matrix<double, Inputs, 1>& u,
+                     const Eigen::Matrix<double, Outputs, 1>& localY)
+        : xHat(observer.Xhat()),
+          errorCovariances(observer.P()),
+          inputs(u),
+          localMeasurements(localY) {}
   };
 
   void AddObserverState(const KalmanFilterType& observer,
                         Eigen::Matrix<double, Inputs, 1> u,
+                        Eigen::Matrix<double, Outputs, 1> localY,
                         units::second_t timestamp) {
     // Add the new state into the vector.
     m_pastObserverSnapshots.emplace_back(timestamp,
-                                         ObserverSnapshot{observer, u});
+                                         ObserverSnapshot{observer, u, localY});
 
     // Remove the oldest snapshot if the vector exceeds our maximum size.
     if (m_pastObserverSnapshots.size() > kMaxPastObserverStates) {
@@ -39,10 +52,13 @@ class KalmanFilterLatencyCompensator {
     }
   }
 
-  void ApplyPastMeasurement(KalmanFilterType& observer,
-                            units::second_t nominalDt,
-                            Eigen::Matrix<double, Outputs, 1> y,
-                            units::second_t timestamp) {
+  template <int Rows>
+  void ApplyPastMeasurement(
+      KalmanFilterType* observer, units::second_t nominalDt,
+      Eigen::Matrix<double, Rows, 1> y,
+      std::function<void(const Vector<Inputs>& u, const Vector<Rows>& y)>
+          globalMeasurementCorrect,
+      units::second_t timestamp) {
     if (m_pastObserverSnapshots.size() == 0) {
       // State map was empty, which means that we got a measurement right at
       // startup. The only thing we can do is ignore the measurement.
@@ -99,17 +115,25 @@ class KalmanFilterLatencyCompensator {
       auto& [key, snapshot] = m_pastObserverSnapshots[i];
 
       if (i == indexOfClosestEntry) {
-        observer.SetP(snapshot.errorCovariances);
-        observer.SetXhat(snapshot.xHat);
+        observer->SetP(snapshot.errorCovariances);
+        observer->SetXhat(snapshot.xHat);
+      }
 
-        observer.Predict(snapshot.inputs, key - lastTimestamp);
-        observer.Correct(snapshot.inputs, y);
-      } else {
-        observer.Predict(snapshot.inputs, key - lastTimestamp);
+      observer->Predict(snapshot.inputs, key - lastTimestamp);
+      observer->Correct(snapshot.inputs, snapshot.localMeasurements);
+
+      if (i == indexOfClosestEntry) {
+        // Note that the measurement is at a timestep close but probably not
+        // exactly equal to the timestep for which we called predict. This makes
+        // the assumption that the dt is small enough that the difference
+        // between the measurement time and the time that the inputs were
+        // captured at is very small.
+        globalMeasurementCorrect(snapshot.inputs, y);
       }
 
       lastTimestamp = key;
-      snapshot = ObserverSnapshot{observer, snapshot.inputs};
+      snapshot = ObserverSnapshot{*observer, snapshot.inputs,
+                                  snapshot.localMeasurements};
     }
   }
 
