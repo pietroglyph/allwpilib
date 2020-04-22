@@ -7,8 +7,6 @@
 
 #include <gtest/gtest.h>
 
-#include <drake/common/test_utilities/eigen_matrix_compare.h>
-
 #include "frc/StateSpaceUtil.h"
 #include "frc/estimator/MerweScaledSigmaPoints.h"
 
@@ -21,11 +19,10 @@ TEST(MerweScaledSigmaPointsTest, TestZeroMean) {
       sigmaPoints.SigmaPoints(frc::MakeMatrix<2, 1>(0.0, 0.0),
                               frc::MakeMatrix<2, 2>(1.0, 0.0, 0.0, 1.0));
 
-  EXPECT_TRUE(CompareMatrices(
-      points,
-      frc::MakeMatrix<5, 2>(0.0, 0.0, 0.00173205, 0.0, 0.0, 0.00173205,
-                            -0.00173205, 0.0, 0.0, -0.00173205),
-      1E-4, MatrixCompareType::absolute));
+  EXPECT_TRUE((points - frc::MakeMatrix<5, 2>(0.0, 0.0, 0.00173205, 0.0, 0.0,
+                                              0.00173205, -0.00173205, 0.0, 0.0,
+                                              -0.00173205))
+                  .norm() < 1e-3);
 }
 
 TEST(MerweScaledSigmaPointsTest, TestNonzeroMean) {
@@ -34,11 +31,10 @@ TEST(MerweScaledSigmaPointsTest, TestNonzeroMean) {
       sigmaPoints.SigmaPoints(frc::MakeMatrix<2, 1>(1.0, 2.0),
                               frc::MakeMatrix<2, 2>(1.0, 0.0, 0.0, 10.0));
 
-  EXPECT_TRUE(CompareMatrices(
-      points,
-      frc::MakeMatrix<5, 2>(1.0, 2.0, 1.00173205, 2.0, 1.0, 2.00547723,
-                            0.99826795, 2.0, 1.0, 1.99452277),
-      1E-4, MatrixCompareType::absolute));
+  EXPECT_TRUE((points - frc::MakeMatrix<5, 2>(1.0, 2.0, 1.00173205, 2.0, 1.0,
+                                              2.00547723, 0.99826795, 2.0, 1.0,
+                                              1.99452277))
+                  .norm() < 1e-3);
 }
 }  // namespace
 }  // namespace math
