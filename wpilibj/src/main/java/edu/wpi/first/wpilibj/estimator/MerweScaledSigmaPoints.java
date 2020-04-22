@@ -91,7 +91,7 @@ public class MerweScaledSigmaPoints<S extends Num> {
     double lambda = Math.pow(m_alpha, 2) * (m_states.getNum() + m_kappa) - m_states.getNum();
 
     var intermediate = P.times(lambda + m_states.getNum()).getStorage();
-    var U = SimpleMatrixUtils.lltDecompose(intermediate); // Upper triangular
+    var U = SimpleMatrixUtils.lltDecompose(intermediate, true); // Upper triangular
 
     // 2 * states + 1 by states
     SimpleMatrix sigmas = new SimpleMatrix(2 * m_states.getNum() + 1, m_states.getNum());
@@ -114,14 +114,11 @@ public class MerweScaledSigmaPoints<S extends Num> {
    */
   @SuppressWarnings("LocalVariableName")
   private void computeWeights(double beta) {
-    var wCBacking = new double[2 * m_states.getNum() + 1];
-    var wMBacking = new double[2 * m_states.getNum() + 1];
-
     double lambda = Math.pow(m_alpha, 2) * (m_states.getNum() + m_kappa) - m_states.getNum();
     double c = 0.5 / (m_states.getNum() + lambda);
 
-    var wM = new SimpleMatrix(1, 2 * m_states.getNum() + 1, true, wCBacking);
-    var wC = new SimpleMatrix(1, 2 * m_states.getNum() + 1, true, wMBacking);
+    var wM = new SimpleMatrix(1, 2 * m_states.getNum() + 1);
+    var wC = new SimpleMatrix(1, 2 * m_states.getNum() + 1);
     wM.fill(c);
     wC.fill(c);
 
