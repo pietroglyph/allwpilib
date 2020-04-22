@@ -91,7 +91,7 @@ public class MerweScaledSigmaPoints<S extends Num> {
     double lambda = Math.pow(m_alpha, 2) * (m_states.getNum() + m_kappa) - m_states.getNum();
 
     var intermediate = P.times(lambda + m_states.getNum()).getStorage();
-    var U = SimpleMatrixUtils.lltDecompose(intermediate, true); // Upper triangular
+    var U = SimpleMatrixUtils.lltDecompose(intermediate); // Upper triangular
 
     // 2 * states + 1 by states
     SimpleMatrix sigmas = new SimpleMatrix(2 * m_states.getNum() + 1, m_states.getNum());
