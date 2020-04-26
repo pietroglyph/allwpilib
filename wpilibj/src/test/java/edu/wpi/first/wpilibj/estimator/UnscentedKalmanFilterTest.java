@@ -301,7 +301,7 @@ public class UnscentedKalmanFilterTest {
           (x, u) -> plant.getA().times(x).plus(plant.getB().times(u)),
           plant::calculateY,
           VecBuilder.fill(0.05),
-          VecBuilder.fill(1.0),
+          VecBuilder.fill(1.0),ret = frc::IsStabilizable<2, 1>(A, B);
           dt);
 
     var time = new ArrayList<Double>();
