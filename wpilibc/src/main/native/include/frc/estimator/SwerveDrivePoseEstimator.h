@@ -123,7 +123,7 @@ class SwerveDrivePoseEstimator {
                               omega.template to<double>());
     m_previousAngle = angle;
 
-    auto localY = frc::MakeMatrix<1, 1>(angle.Radians().to<double>());
+    auto localY = frc::MakeMatrix<1, 1>(angle.Radians().template to<double>());
     m_latencyCompensator.AddObserverState(m_observer, u, localY, currentTime);
 
     m_observer.Predict(u, dt);
