@@ -120,7 +120,8 @@ TEST(StateSpaceUtilTest, IsStabilizable) {
   Eigen::Matrix<double, 2, 1> B;
   B << 0, 1;
 
-  // We separate the result of IsStabilizable from the assertion because otherwise it breaks GCC.
+  // We separate the result of IsStabilizable from the assertion because
+  // templates break gtest.
 
   // First eigenvalue is uncontrollable and unstable.
   // Second eigenvalue is controllable and stable.
