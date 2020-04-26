@@ -45,7 +45,7 @@ Team 254 Library      wpilibj/src/main/java/edu/wpi/first/wpilibj/spline/SplineP
                       wpilibc/src/main/native/include/trajectory/TrajectoryParameterizer.h
                       wpilibc/src/main/native/cpp/trajectory/TrajectoryParameterizer.cpp
 Portable File Dialogs simulation/halsim_gui/src/main/native/include/portable-file-dialogs.h
-DRAKE                 wpiutil/src/main/native/cpp/drake/drake_assert_and_throw.cpp
+Drake                 wpiutil/src/main/native/cpp/drake/drake_assert_and_throw.cpp
                       wpiutil/src/main/native/cpp/drake/discrete_algebraic_riccati_equation.cpp
 
 
@@ -811,7 +811,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 =============
-DRAKE Library
+Drake Library
 =============
 All components of Drake are licensed under the BSD 3-Clause License
 shown below. Where noted in the source code, some portions may
