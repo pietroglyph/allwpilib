@@ -37,11 +37,11 @@ class DifferentialDriveVelocitySystemConstraint : public TrajectoryConstraint {
       units::volt_t maxVoltage);
 
   units::meters_per_second_t MaxVelocity(
-      const Pose2d& pose, curvature_t curvature,
-      units::meters_per_second_t velocity) override;
+      const Pose2d& pose, units::curvature_t curvature,
+      units::meters_per_second_t velocity) const override;
 
-  MinMax MinMaxAcceleration(const Pose2d& pose, curvature_t curvature,
-                            units::meters_per_second_t speed) override;
+  MinMax MinMaxAcceleration(const Pose2d& pose, units::curvature_t curvature,
+                            units::meters_per_second_t speed) const override;
 
  private:
   LinearSystem<2, 2, 2> m_system;
