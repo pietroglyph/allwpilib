@@ -20,9 +20,7 @@ import edu.wpi.first.wpiutil.math.numbers.N1;
 /**
  * Contains the controller coefficients and logic for a linear-quadratic
  * regulator (LQR).
- * LQRs use the control law u = K(r - x). The feedforward uses an inverted plant
- * and is calculated as u_ff = B<sup>+</sup> (r_k+1 - A r_k), were B<sup>+</sup>
- * is the pseudoinverse of B.
+ * LQRs use the control law u = K(r - x).
  *
  * <p>For more on the underlying math, read
  * https://file.tavsys.net/control/controls-engineering-in-frc.pdf.
@@ -52,11 +50,6 @@ public class LinearQuadraticRegulator<S extends Num, I extends Num,
    */
   @SuppressWarnings("MemberName")
   private Matrix<I, N1> m_u;
-
-  /**
-   * The computed feedforward.
-   */
-  private Matrix<I, N1> m_uff;
 
   // Controller gain.
   @SuppressWarnings("MemberName")
@@ -190,11 +183,12 @@ public class LinearQuadraticRegulator<S extends Num, I extends Num,
   private void initializeRandU(int states, int inputs) {
     m_r = new Matrix<>(new SimpleMatrix(states, 1));
     m_u = new Matrix<>(new SimpleMatrix(inputs, 1));
-    m_uff = new Matrix<>(new SimpleMatrix(inputs, 1));
   }
 
   /**
    * Returns the control input vector u.
+   *
+   * @return The control input.
    */
   public Matrix<I, N1> getU() {
     return m_u;
@@ -202,30 +196,19 @@ public class LinearQuadraticRegulator<S extends Num, I extends Num,
 
   /**
    * Returns an element of the control input vector u.
+   *
+   * @param row Row of u.
+   *
+   * @return The row of the control input vector.
    */
   public double getU(int row) {
     return m_u.get(row, 0);
   }
 
   /**
-   * Returns the feedforward component of the control input vector u.
-   */
-  public Matrix<I, N1> getUff() {
-    return m_uff;
-  }
-
-  /**
-   * Returns an element of the feedforward component of the control input vector
-   * u.
-   *
-   * @param row Row of u.
-   */
-  public double getUff(int row) {
-    return m_uff.get(row, 0);
-  }
-
-  /**
    * Returns the reference vector r.
+   *
+   * @return The reference vector.
    */
   public Matrix<S, N1> getR() {
     return m_r;
@@ -235,6 +218,8 @@ public class LinearQuadraticRegulator<S extends Num, I extends Num,
    * Returns an element of the reference vector r.
    *
    * @param row Row of r.
+   *
+   * @return The row of the reference vector.
    */
   public double getR(int row) {
     return m_r.get(row, 0);
@@ -274,7 +259,6 @@ public class LinearQuadraticRegulator<S extends Num, I extends Num,
   public void reset() {
     m_r.getStorage().fill(0.0);
     m_u.getStorage().fill(0.0);
-    m_uff.getStorage().fill(0.0);
   }
 
   /**
@@ -285,9 +269,7 @@ public class LinearQuadraticRegulator<S extends Num, I extends Num,
   @SuppressWarnings("ParameterName")
   public void update(Matrix<S, N1> x) {
     if (m_enabled) {
-      m_uff = new Matrix<>(m_discB.getStorage()
-            .solve((m_r.minus(m_discA.times(m_r))).getStorage()));
-      m_u = m_K.times(m_r.minus(x)).plus(m_uff);
+      m_u = m_K.times(m_r.minus(x));
     }
   }
 
