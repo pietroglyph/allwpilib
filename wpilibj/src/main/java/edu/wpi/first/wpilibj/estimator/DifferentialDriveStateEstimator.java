@@ -63,7 +63,7 @@ public class DifferentialDriveStateEstimator {
   private final UnscentedKalmanFilter<N10, N2, N3> m_observer;
   private final KalmanFilterLatencyCompensator<N10, N2, N3> m_latencyCompensator;
 
-  private final BiConsumer<Matrix<N2, N1>, Matrix<N3, N1>> m_globalCorrect;
+//  private final BiConsumer<Matrix<N2, N1>, Matrix<N3, N1>> m_globalCorrect;
 
   private final double m_rb;
   private final LinearSystem<N2, N2, N2> m_plant;
@@ -138,20 +138,90 @@ public class DifferentialDriveStateEstimator {
     var globalDiscR = Discretization.discretizeR(globalContR, m_nominalDt);
 
     m_observer = new UnscentedKalmanFilter<>(
-      Nat.N10(), Nat.N3(),
-      this::getDynamics,
-      this::getLocalMeasurementModel,
-      stateStdDevs,
-      localMeasurementStdDevs,
-      nominalDtSeconds
+        Nat.N10(), Nat.N3(),
+        this::getDynamics,
+        this::getLocalMeasurementModel,
+        stateStdDevs,
+        localMeasurementStdDevs,
+        (sigmas, Wm) -> {
+          var x = MatrixUtils.zeros(Nat.N10()).transpose();
+          double sumSin = 0;
+          double sumCos = 0;
+
+          for (int i = 0; i < sigmas.getNumCols(); i++) {
+            var s = sigmas.extractRowVector(i);
+            x.set(0, 0, x.get(0, 0) + Wm.get(0, i) * s.get(0, 0));
+            x.set(0, 1, x.get(0, 1) + Wm.get(0, i) * s.get(0, 1));
+
+            sumSin += Math.sin(s.get(2, 0)) * Wm.get(0, i);
+            sumCos += Math.cos(s.get(2, 0)) * Wm.get(0, i);
+
+            x.set(0, 3, x.get(0, 3) + Wm.get(0, i) * s.get(0, 3));
+            x.set(0, 4, x.get(0, 4) + Wm.get(0, i) * s.get(0, 4));
+            x.set(0, 5, x.get(0, 5) + Wm.get(0, i) * s.get(0, 5));
+            x.set(0, 6, x.get(0, 6) + Wm.get(0, i) * s.get(0, 6));
+            x.set(0, 7, x.get(0, 7) + Wm.get(0, i) * s.get(0, 7));
+            x.set(0, 8, x.get(0, 8) + Wm.get(0, i) * s.get(0, 8));
+            x.set(0, 9, x.get(0, 9) + Wm.get(0, i) * s.get(0, 9));
+          }
+          x.set(2, 0, Math.atan2(sumSin, sumCos));
+
+          return x;
+        },
+        (sigmas, Wc) -> {
+          var x = MatrixUtils.zeros(Nat.N3()).transpose();
+          double sumSin = 0;
+          double sumCos = 0;
+
+          for (int i = 0; i < sigmas.getNumCols(); i++) {
+            var s = sigmas.extractRowVector(i);
+            x.set(0, 0, x.get(0, 0) + Wc.get(0, i) * s.get(0, 0));
+            x.set(0, 1, x.get(0, 1) + Wc.get(0, i) * s.get(0, 1));
+
+            sumSin += Math.sin(s.get(2, 0)) * Wc.get(0, i);
+            sumCos += Math.cos(s.get(2, 0)) * Wc.get(0, i);
+          }
+          x.set(2, 0, Math.atan2(sumSin, sumCos));
+
+          return x;
+        },
+        (sigmasRow, x) -> {
+          var resid = sigmasRow.minus(x);
+
+          double angle = resid.get(0, 2);
+          if (angle > Math.PI) {
+            angle -= 2 * Math.PI;
+          }
+          if (angle < -Math.PI) {
+            angle = Math.PI;
+          }
+          resid.set(0, 2, angle);
+
+          return resid;
+        },
+        (sigmasRow, x) -> {
+          var resid = sigmasRow.minus(x);
+
+          double angle = resid.get(0, 2);
+          if (angle > Math.PI) {
+            angle -= 2 * Math.PI;
+          }
+          if (angle < -Math.PI) {
+            angle = Math.PI;
+          }
+          resid.set(0, 2, angle);
+
+          return resid;
+        },
+        nominalDtSeconds
    );
 
     // Create correction mechanism for global measurements.
-    m_globalCorrect = (u, y) -> m_observer.correct(
-      Nat.N3(), u, y,
-      this::getGlobalMeasurementModel,
-      globalDiscR
-    );
+//    m_globalCorrect = (u, y) -> m_observer.correct(
+//      Nat.N3(), u, y,
+//      this::getGlobalMeasurementModel,
+//      globalDiscR
+//    );
     m_latencyCompensator = new KalmanFilterLatencyCompensator<>();
 
     reset(initialState);
@@ -220,13 +290,13 @@ public class DifferentialDriveStateEstimator {
     m_globalY.set(GlobalOutput.kY.value, 0, robotPoseMeters.getTranslation().getY());
     m_globalY.set(GlobalOutput.kHeading.value, 0, robotPoseMeters.getRotation().getRadians());
 
-    m_latencyCompensator.applyPastGlobalMeasurement(
-            Nat.N3(),
-            m_observer, m_nominalDt,
-            m_globalY,
-            m_globalCorrect,
-            timestampSeconds
-    );
+//    m_latencyCompensator.applyPastGlobalMeasurement(
+//            Nat.N3(),
+//            m_observer, m_nominalDt,
+//            m_globalY,
+//            m_globalCorrect,
+//            timestampSeconds
+//    );
   }
 
   /**
@@ -288,7 +358,7 @@ public class DifferentialDriveStateEstimator {
     m_latencyCompensator.addObserverState(m_observer, controlInput, m_localY, currentTimeSeconds);
 
     m_observer.predict(controlInput, dt);
-    m_observer.correct(controlInput, m_localY);
+//    m_observer.correct(controlInput, m_localY);
 
     return getEstimatedState();
   }

@@ -113,8 +113,7 @@ public class DifferentialDrivePoseEstimator {
         Nat.N5(), Nat.N3(),
         this::f,
         (x, u) -> VecBuilder.fill(x.get(3, 0), x.get(4, 0), x.get(2, 0)),
-        stateStdDevs, localMeasurementStdDevs,
-        m_nominalDt
+        stateStdDevs, localMeasurementStdDevs
     );
     m_latencyCompensator = new KalmanFilterLatencyCompensator<>();
 

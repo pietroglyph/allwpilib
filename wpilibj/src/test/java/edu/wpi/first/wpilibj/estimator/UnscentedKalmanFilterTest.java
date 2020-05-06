@@ -99,11 +99,11 @@ public class UnscentedKalmanFilterTest {
             UnscentedKalmanFilterTest::getDynamics,
             UnscentedKalmanFilterTest::getLocalMeasurementModel,
             VecBuilder.fill(0.5, 0.5, 0.7, 0.7, 1.0, 1.0),
-            VecBuilder.fill(0.001, 0.001, 0.5, 0.5),
-            0.00505);
+            VecBuilder.fill(0.001, 0.001, 0.5, 0.5)
+      );
 
       var u = VecBuilder.fill(12.0, 12.0);
-      observer.predict(u, 0.00505);
+      observer.predict(u, 0.02);
 
       var localY = getLocalMeasurementModel(observer.getXhat(), u);
       observer.correct(u, localY);
@@ -114,7 +114,7 @@ public class UnscentedKalmanFilterTest {
         "PMD.ExcessiveMethodLength"})
   @Test
   public void testConvergence() {
-    double dtSeconds = 0.00505;
+    double dtSeconds = 0.02;
     double rbMeters = 0.8382 / 2.0; // Robot radius
 
     List<Double> trajXs = new ArrayList<>();
@@ -139,8 +139,8 @@ public class UnscentedKalmanFilterTest {
           UnscentedKalmanFilterTest::getDynamics,
           UnscentedKalmanFilterTest::getLocalMeasurementModel,
           VecBuilder.fill(0.5, 0.5, 0.7, 0.7, 1.0, 1.0),
-          VecBuilder.fill(0.001, 0.001, 0.5, 0.5),
-          dtSeconds);
+          VecBuilder.fill(0.001, 0.001, 0.5, 0.5)
+    );
 
     //    ExtendedKalmanFilter<N6, N2, N4> observer = new ExtendedKalmanFilter<>(
     //          Nat.N6(), Nat.N2(), Nat.N4(),
@@ -307,8 +307,8 @@ public class UnscentedKalmanFilterTest {
         (x, u) -> plant.getA().times(x).plus(plant.getB().times(u)),
           plant::calculateY,
           VecBuilder.fill(0.05),
-          VecBuilder.fill(1.0),
-          dt);
+          VecBuilder.fill(1.0)
+    );
 
     var time = new ArrayList<Double>();
     var refData = new ArrayList<Double>();
@@ -372,7 +372,9 @@ public class UnscentedKalmanFilterTest {
           new MatBuilder<>(Nat.N1(), Nat.N9()).fill(-132.33333333, 16.66666667, 16.66666667,
                 16.66666667, 16.66666667, 16.66666667, 16.66666667, 16.66666667, 16.66666667),
           new MatBuilder<>(Nat.N1(), Nat.N9()).fill(-129.34333333, 16.66666667, 16.66666667,
-                16.66666667, 16.66666667, 16.66666667, 16.66666667, 16.66666667, 16.66666667)
+                16.66666667, 16.66666667, 16.66666667, 16.66666667, 16.66666667, 16.66666667),
+            null,
+            null
     );
     System.out.println(ret.getFirst());
     System.out.println(ret.getSecond());
